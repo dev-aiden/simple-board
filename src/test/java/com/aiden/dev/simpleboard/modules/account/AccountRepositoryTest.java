@@ -11,8 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 class AccountRepositoryTest {
 
-    @Autowired
-    private AccountRepository accountRepository;
+    @Autowired AccountRepository accountRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -45,5 +44,12 @@ class AccountRepositoryTest {
     void existsByEmail() {
         assertThat(accountRepository.existsByEmail("test@email.com")).isTrue();
         assertThat(accountRepository.existsByEmail("test2@email.com")).isFalse();
+    }
+
+    @DisplayName("Nickname으로 사용자 조회 쿼리 테스트")
+    @Test
+    void findByNickname() {
+        assertThat(accountRepository.findByNickname("test")).isNotNull();
+        assertThat(accountRepository.findByNickname("test2")).isNotNull();
     }
 }

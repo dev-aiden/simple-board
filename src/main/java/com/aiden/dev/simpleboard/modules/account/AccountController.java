@@ -18,6 +18,7 @@ import javax.validation.Valid;
 public class AccountController {
 
     private final SignUpFormValidator signUpFormValidator;
+    private final AccountService accountService;
 
     @InitBinder("signUpForm")
     public void initBinder(WebDataBinder webDataBinder) {
@@ -36,7 +37,7 @@ public class AccountController {
             return "account/sign-up";
         }
 
-        // TODO 회원가입 처리
+        accountService.processNewAccount(signUpForm);
 
         return "redirect:/";
     }

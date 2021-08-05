@@ -11,7 +11,7 @@ create table account (
     joined_at datetime(6),
     login_id varchar(255) not null,
     nickname varchar(255) not null,
-    password bigint not null,
+    password varchar(255) not null,
     profile_image longtext,
     primary key (id),
     CONSTRAINT UK_login_id UNIQUE (login_id),
