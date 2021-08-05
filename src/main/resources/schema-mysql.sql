@@ -9,10 +9,12 @@ create table account (
     email_check_token_generated_at datetime(6),
     email_verified bit not null,
     joined_at datetime(6),
+    login_id varchar(255) not null,
     nickname varchar(255) not null,
     password bigint not null,
     profile_image longtext,
     primary key (id),
+    CONSTRAINT UK_login_id UNIQUE (login_id),
     CONSTRAINT UK_email UNIQUE (email),
     CONSTRAINT UK_nickname UNIQUE (nickname)
 ) engine=InnoDB;

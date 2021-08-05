@@ -15,6 +15,10 @@ public class Account {
     private Long id;
 
     @NotNull
+    @Column(unique = true)
+    private String loginId;
+
+    @NotNull
     private Long password;
 
     @NotNull
