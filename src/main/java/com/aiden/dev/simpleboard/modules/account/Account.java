@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -19,7 +20,7 @@ public class Account {
     private String loginId;
 
     @NotNull
-    private Long password;
+    private String password;
 
     @NotNull
     @Column(unique = true)
@@ -40,4 +41,9 @@ public class Account {
 
     @Lob
     private String profileImage;
+
+    public void generateEmailCheckToken() {
+        this.emailCheckToken = UUID.randomUUID().toString();
+        this.emailCheckTokenGeneratedAt = LocalDateTime.now();
+    }
 }
