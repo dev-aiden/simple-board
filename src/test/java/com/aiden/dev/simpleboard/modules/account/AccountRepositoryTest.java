@@ -46,10 +46,13 @@ class AccountRepositoryTest {
         assertThat(accountRepository.existsByEmail("test2@email.com")).isFalse();
     }
 
-    @DisplayName("Nickname으로 사용자 조회 쿼리 테스트")
+    @DisplayName("Email로 계정 조회하는 쿼리 테스트")
     @Test
-    void findByNickname() {
-        assertThat(accountRepository.findByNickname("test")).isNotNull();
-        assertThat(accountRepository.findByNickname("test2")).isNotNull();
+    void findByEmail() {
+        Account account = accountRepository.findByEmail("test@email.com");
+        assertThat(account).isNotNull();
+        assertThat(account.getLoginId()).isEqualTo("test");
+        assertThat(account.getNickname()).isEqualTo("test");
+        assertThat(accountRepository.findByEmail("test2@email.com")).isNull();
     }
 }

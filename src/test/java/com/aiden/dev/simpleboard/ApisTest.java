@@ -11,16 +11,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -33,6 +31,18 @@ class ApisTest {
     @Autowired MockMvc mockMvc;
     @Autowired AccountRepository accountRepository;
     @MockBean EmailService emailService;
+
+    @BeforeEach
+    void beforeEach() {
+        Account account = Account.builder()
+                .loginId("aiden")
+                .password("aiden1234")
+                .nickname("aiden")
+                .email("aiden@email.com")
+                .emailCheckToken("aidenToken")
+                .build();
+        accountRepository.save(account);
+    }
 
     @DisplayName("잘못된 입력값으로 회원가입 시 회원가입 실패")
     @Test
@@ -65,11 +75,53 @@ class ApisTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
 
-        Optional<Account> optionalAccount = accountRepository.findByNickname("test");
-        assertThat(optionalAccount.isPresent()).isTrue();
-        Account account = optionalAccount.get();
+        Account account = accountRepository.findByEmail("test@email.com");
+        assertThat(account).isNotNull();
         assertThat(account.getPassword()).isNotEqualTo("testtest");
         assertThat(account.getEmailCheckToken()).isNotNull();
         then(emailService).should().sendEmail(any());
+    }
+
+    @DisplayName("존재하지 않는 계정에 대한 인증메일 확인 시 인증 실패")
+    @Test
+    void checkEmailToken_with_null_account() throws Exception {
+        mockMvc.perform(get("/check-email-token")
+                    .param("token", "testToken")
+                    .param("email", "test@email.com"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attribute("error", "wrong.email"))
+                .andExpect(view().name("account/checked-email"));
+    }
+
+    @DisplayName("인증 메일 확인 - 유효하지 않은 토큰")
+    @Test
+    void checkEmailToken_with_wrong_token() throws Exception {
+        mockMvc.perform(get("/check-email-token")
+                .param("token", "testToken")
+                .param("email", "aiden@email.com"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attribute("error", "wrong.token"))
+                .andExpect(view().name("account/checked-email"));
+    }
+
+    @DisplayName("인증 메일 확인 - 입력값 정상")
+    @Test
+    void checkEmailToken_with_correct_input() throws Exception {
+        mockMvc.perform(get("/check-email-token")
+                    .param("token", "aidenToken")
+                    .param("email", "aiden@email.com"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(model().attributeDoesNotExist("error"))
+                .andExpect(view().name("account/checked-email"));
+
+        Account account = accountRepository.findByEmail("aiden@email.com");
+        assertThat(account).isNotNull();
+        assertThat(account.isEmailVerified()).isTrue();
+        assertThat(account.getJoinedAt()).isNotNull();
     }
 }

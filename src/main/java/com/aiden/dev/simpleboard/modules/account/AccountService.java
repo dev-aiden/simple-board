@@ -3,7 +3,6 @@ package com.aiden.dev.simpleboard.modules.account;
 import com.aiden.dev.simpleboard.infra.mail.EmailMessage;
 import com.aiden.dev.simpleboard.infra.mail.EmailService;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
