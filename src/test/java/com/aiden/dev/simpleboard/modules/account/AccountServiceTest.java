@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,5 +40,23 @@ class AccountServiceTest {
         assertThat(account.getEmail()).isEqualTo(signUpForm.getEmail());
         assertThat(account.getEmailCheckToken()).isNotNull();
         then(emailService).should().sendEmail(any());
+    }
+
+    @DisplayName("로그인 테스트")
+    @Test
+    void login() {
+        // Given
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .build();
+
+        // When
+        accountService.login(account);
+        UserAccount authenticationAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        // Then
+        assertThat(authenticationAccount.getUsername()).isEqualTo("test");
+        assertThat(authenticationAccount.getPassword()).isEqualTo("testtest");
     }
 }
