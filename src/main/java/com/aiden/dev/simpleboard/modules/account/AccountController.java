@@ -38,7 +38,7 @@ public class AccountController {
             return "account/sign-up";
         }
 
-        accountService.processNewAccount(signUpForm);
+        accountService.login(accountService.processNewAccount(signUpForm));
 
         return "redirect:/";
     }
@@ -58,6 +58,8 @@ public class AccountController {
         }
 
         account.completeSignUp();
+        accountService.login(account);
+
         return "account/checked-email";
     }
 }
