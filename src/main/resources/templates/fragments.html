@@ -66,7 +66,7 @@
                                     <span sec:authentication="name">Username</span>
                                 </h6>
                                 <hr style="margin: 0"/>
-                                <li><a class="dropdown-item" th:href="@{'/profile/' + ${#authentication.name}}">프로필</a></li>
+                                <li><a class="dropdown-item" th:href="@{'/profile/id/' + ${#authentication.name}}">프로필</a></li>
                                 <form class="form-inline my-2 my-lg-0" th:action="@{/logout}" method="post">
                                     <button class="dropdown-item" type="submit">로그아웃</button>
                                 </form>

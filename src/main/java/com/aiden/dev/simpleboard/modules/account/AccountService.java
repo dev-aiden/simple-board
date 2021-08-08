@@ -57,6 +57,7 @@ public class AccountService implements UserDetailsService {
         SecurityContextHolder.getContext().setAuthentication(token);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
         Account account = accountRepository.findByLoginId(loginId);
@@ -65,5 +66,10 @@ public class AccountService implements UserDetailsService {
         }
 
         return new UserAccount(account);
+    }
+
+    public void completeSignUp(Account account) {
+        account.completeSignUp();
+        login(account);
     }
 }

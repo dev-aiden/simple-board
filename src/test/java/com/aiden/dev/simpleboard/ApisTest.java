@@ -1,6 +1,5 @@
 package com.aiden.dev.simpleboard;
 
-import com.aiden.dev.simpleboard.infra.mail.EmailService;
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountRepository;
 import com.aiden.dev.simpleboard.modules.account.AccountService;

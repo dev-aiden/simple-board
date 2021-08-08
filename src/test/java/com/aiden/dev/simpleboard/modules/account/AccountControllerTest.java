@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -44,12 +45,12 @@ class AccountControllerTest {
         when(signUpFormValidator.supports(any())).thenReturn(true);
 
         mockMvc.perform(post("/sign-up")
-                    .param("loginId", "test")
-                    .param("password", "testtest")
-                    .param("passwordConfirm", "testtest")
-                    .param("nickname", "test")
-                    .param("email", "test")
-                    .with(csrf()))
+                .param("loginId", "test")
+                .param("password", "testtest")
+                .param("passwordConfirm", "testtest")
+                .param("nickname", "test")
+                .param("email", "test")
+                .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/sign-up"));
@@ -61,12 +62,12 @@ class AccountControllerTest {
         when(signUpFormValidator.supports(any())).thenReturn(true);
 
         mockMvc.perform(post("/sign-up")
-                    .param("loginId", "test")
-                    .param("password", "testtest")
-                    .param("passwordConfirm", "testtest")
-                    .param("nickname", "test")
-                    .param("email", "test@email.com")
-                    .with(csrf()))
+                .param("loginId", "test")
+                .param("password", "testtest")
+                .param("passwordConfirm", "testtest")
+                .param("nickname", "test")
+                .param("email", "test@email.com")
+                .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
@@ -78,8 +79,8 @@ class AccountControllerTest {
         when(accountRepository.findByEmail(any())).thenReturn(null);
 
         mockMvc.perform(get("/check-email-token")
-                    .param("token", "testToken")
-                    .param("email", "test@email.com"))
+                .param("token", "testToken")
+                .param("email", "test@email.com"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("error"))
@@ -94,8 +95,8 @@ class AccountControllerTest {
         when(accountRepository.findByEmail(any()).isValidToken(any())).thenReturn(false);
 
         mockMvc.perform(get("/check-email-token")
-                    .param("token", "testToken")
-                    .param("email", "test@email.com"))
+                .param("token", "testToken")
+                .param("email", "test@email.com"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("error"))
@@ -151,5 +152,41 @@ class AccountControllerTest {
                 .andExpect(redirectedUrl("/"));
 
         verify(accountService, times(1)).sendSignUpConfirmEmail(any());
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("아이디로 프로필 페이지 보이는지 확인 - 다른 사용자 아이디")
+    @Test
+    void viewProfileByLoginId_not_current_account() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(get("/profile/id/aiden2"))).hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("아이디로 프로필 페이지 보이는지 확인 - 본인 아이디")
+    @Test
+    void viewProfileByLoginId_current_account() throws Exception {
+        mockMvc.perform(get("/profile/id/aiden"))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/profile/aiden"));
+    }
+
+    @DisplayName("닉네임으로 프로필 페이지 보이는지 확인 - 존재하지 않는 사용자")
+    @Test
+    void viewProfile_not_exist_user() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(get("/profile/aiden"))).hasCause(new IllegalArgumentException("aiden에 해당하는 사용자가 존재하지 않습니다."));
+    }
+
+    @DisplayName("닉네임으로 프로필 페이지 보이는지 확인 - 존재하는 사용자")
+    @Test
+    void viewProfile_exist_user() throws Exception {
+        when(accountRepository.findByNickname(any())).thenReturn(new Account());
+
+        mockMvc.perform(get("/profile/aiden"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/profile"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("isOwner"));
     }
 }

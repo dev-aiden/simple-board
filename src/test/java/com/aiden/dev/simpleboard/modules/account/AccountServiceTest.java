@@ -109,4 +109,25 @@ class AccountServiceTest {
         // Then
         assertThat(userDetails.getUsername()).isEqualTo("test");
     }
+
+    @DisplayName("이메일 인증하여 회원가입 완료 테스트")
+    @Test
+    void completeSignUp() {
+        // Given
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .build();
+
+        // When
+        accountService.completeSignUp(account);
+
+        // Then
+        assertThat(account.isEmailVerified()).isTrue();
+        assertThat(account.getJoinedAt()).isNotNull();
+
+        UserAccount authenticationAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        assertThat(authenticationAccount.getUsername()).isEqualTo("test");
+        assertThat(authenticationAccount.getPassword()).isEqualTo("testtest");
+    }
 }
