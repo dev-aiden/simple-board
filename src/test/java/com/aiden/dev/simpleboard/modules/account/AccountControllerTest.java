@@ -1,7 +1,6 @@
 package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.modules.account.validator.SignUpFormValidator;
-import org.apache.tomcat.jni.Local;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
-
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -71,7 +67,7 @@ class AccountControllerTest {
                     .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/"));
+                .andExpect(redirectedUrl("/"));
     }
 
     @DisplayName("인증 메일 확인 - 존재하지 않는 계정")
@@ -131,7 +127,7 @@ class AccountControllerTest {
                 .andExpect(model().attributeExists("email"));
     }
 
-    @WithAccount(loginId = "aiden", role = "ROLE_USER")
+    @WithAccount(loginId = "aiden")
     @DisplayName("인증 메일 재발송 확인 - 1시간 이내 재발송")
     @Test
     void resendConfirmEmail_before_1_hour() throws Exception {
@@ -143,14 +139,14 @@ class AccountControllerTest {
                 .andExpect(model().attributeExists("email"));
     }
 
-    @WithAccount(loginId = "aiden", role = "ROLE_USER", minusHoursForEmailCheckToken = 2L)
+    @WithAccount(loginId = "aiden", minusHoursForEmailCheckToken = 2L)
     @DisplayName("인증 메일 재발송 확인 - 1시간 이후 재발송")
     @Test
     void resendConfirmEmail_after_1_hour() throws Exception {
         mockMvc.perform(get("/resend-confirm-email"))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/"));
+                .andExpect(redirectedUrl("/"));
 
         verify(accountService, times(1)).sendSignUpConfirmEmail(any());
     }

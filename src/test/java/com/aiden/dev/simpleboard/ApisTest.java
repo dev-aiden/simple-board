@@ -82,7 +82,7 @@ class ApisTest {
                     .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/"))
+                .andExpect(redirectedUrl("/"))
                 .andExpect(authenticated().withUsername("test"));
 
         Account account = accountRepository.findByLoginId("test");
@@ -162,7 +162,44 @@ class ApisTest {
         mockMvc.perform(get("/resend-confirm-email"))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/"))
+                .andExpect(redirectedUrl("/"))
                 .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @DisplayName("로그인 실패")
+    @Test
+    void login_fail() throws Exception {
+        mockMvc.perform(post("/login")
+                    .param("username", "aiden2")
+                    .param("password", "11111111")
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login?error"))
+                .andExpect(unauthenticated());
+    }
+
+    @DisplayName("로그인 성공")
+    @Test
+    void login_success() throws Exception {
+        mockMvc.perform(post("/login")
+                    .param("username", "aiden")
+                    .param("password", "12345678")
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @DisplayName("로그아웃")
+    @Test
+    void logout() throws Exception {
+        mockMvc.perform(post("/logout")
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(unauthenticated());
     }
 }
