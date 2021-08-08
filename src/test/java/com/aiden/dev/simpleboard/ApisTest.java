@@ -3,17 +3,20 @@ package com.aiden.dev.simpleboard;
 import com.aiden.dev.simpleboard.infra.mail.EmailService;
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountRepository;
+import com.aiden.dev.simpleboard.modules.account.AccountService;
+import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -32,18 +35,21 @@ class ApisTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired AccountRepository accountRepository;
-    @MockBean EmailService emailService;
+    @Autowired AccountService accountService;
 
     @BeforeEach
     void beforeEach() {
-        Account account = Account.builder()
-                .loginId("aiden")
-                .password("aiden1234")
-                .nickname("aiden")
-                .email("aiden@email.com")
-                .emailCheckToken("aidenToken")
-                .build();
-        accountRepository.save(account);
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("aiden");
+        signUpForm.setNickname("aiden");
+        signUpForm.setEmail("aiden@email.com");
+        signUpForm.setPassword("12345678");
+        accountService.processNewAccount(signUpForm);
+    }
+
+    @AfterEach
+    void afterEach() {
+        accountRepository.deleteAll();
     }
 
     @DisplayName("잘못된 입력값으로 회원가입 시 회원가입 실패")
@@ -61,7 +67,7 @@ class ApisTest {
                 .andExpect(view().name("account/sign-up"))
                 .andExpect(unauthenticated());
 
-        assertThat(accountRepository.existsByEmail("test@email.com")).isFalse();
+        assertThat(accountRepository.existsByLoginId("test")).isFalse();
     }
 
     @DisplayName("올바른 입력값으로 회원가입 시 회원가입 성공")
@@ -79,11 +85,12 @@ class ApisTest {
                 .andExpect(view().name("redirect:/"))
                 .andExpect(authenticated().withUsername("test"));
 
-        Account account = accountRepository.findByEmail("test@email.com");
+        Account account = accountRepository.findByLoginId("test");
         assertThat(account).isNotNull();
         assertThat(account.getPassword()).isNotEqualTo("testtest");
+        assertThat(account.getNickname()).isEqualTo("test");
+        assertThat(account.getEmail()).isEqualTo("test@email.com");
         assertThat(account.getEmailCheckToken()).isNotNull();
-        then(emailService).should().sendEmail(any());
     }
 
     @DisplayName("존재하지 않는 계정에 대한 인증메일 확인 시 인증 실패")
@@ -104,8 +111,8 @@ class ApisTest {
     @Test
     void checkEmailToken_with_wrong_token() throws Exception {
         mockMvc.perform(get("/check-email-token")
-                .param("token", "testToken")
-                .param("email", "aiden@email.com"))
+                    .param("token", "testToken")
+                    .param("email", "aiden@email.com"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("error"))
@@ -117,8 +124,10 @@ class ApisTest {
     @DisplayName("인증 메일 확인 - 입력값 정상")
     @Test
     void checkEmailToken_with_correct_input() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+
         mockMvc.perform(get("/check-email-token")
-                    .param("token", "aidenToken")
+                    .param("token", account.getEmailCheckToken())
                     .param("email", "aiden@email.com"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -126,9 +135,34 @@ class ApisTest {
                 .andExpect(view().name("account/checked-email"))
                 .andExpect(authenticated().withUsername("aiden"));
 
-        Account account = accountRepository.findByEmail("aiden@email.com");
-        assertThat(account).isNotNull();
         assertThat(account.isEmailVerified()).isTrue();
         assertThat(account.getJoinedAt()).isNotNull();
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("인증 메일 재발송 확인 - 1시간 이내 재발송")
+    @Test
+    void resendConfirmEmail_before_1_hour() throws Exception {
+        mockMvc.perform(get("/resend-confirm-email"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/check-email"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attributeExists("email"))
+                .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("인증 메일 재발송 확인 - 1시간 이후 재발송")
+    @Test
+    void resendConfirmEmail_after_1_hour() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+        account.setEmailCheckTokenGeneratedAt(LocalDateTime.now().minusHours(2L));
+
+        mockMvc.perform(get("/resend-confirm-email"))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/"))
+                .andExpect(authenticated().withUsername("aiden"));
     }
 }

@@ -1,6 +1,7 @@
 package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.modules.account.validator.SignUpFormValidator;
+import org.apache.tomcat.jni.Local;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +9,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -115,5 +118,40 @@ class AccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(model().attributeDoesNotExist("error"))
                 .andExpect(view().name("account/checked-email"));
+    }
+
+    @WithAccount(loginId = "aiden", role = "ROLE_USER")
+    @DisplayName("인증 메일 페이지 잘 보이는지 확인")
+    @Test
+    void checkEmail() throws Exception {
+        mockMvc.perform(get("/check-email"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/check-email"))
+                .andExpect(model().attributeExists("email"));
+    }
+
+    @WithAccount(loginId = "aiden", role = "ROLE_USER")
+    @DisplayName("인증 메일 재발송 확인 - 1시간 이내 재발송")
+    @Test
+    void resendConfirmEmail_before_1_hour() throws Exception {
+        mockMvc.perform(get("/resend-confirm-email"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/check-email"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attributeExists("email"));
+    }
+
+    @WithAccount(loginId = "aiden", role = "ROLE_USER", minusHoursForEmailCheckToken = 2L)
+    @DisplayName("인증 메일 재발송 확인 - 1시간 이후 재발송")
+    @Test
+    void resendConfirmEmail_after_1_hour() throws Exception {
+        mockMvc.perform(get("/resend-confirm-email"))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/"));
+
+        verify(accountService, times(1)).sendSignUpConfirmEmail(any());
     }
 }

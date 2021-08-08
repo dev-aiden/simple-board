@@ -55,4 +55,14 @@ class AccountRepositoryTest {
         assertThat(account.getNickname()).isEqualTo("test");
         assertThat(accountRepository.findByEmail("test2@email.com")).isNull();
     }
+
+    @DisplayName("LoginId로 계정 조회하는 쿼리 테스트")
+    @Test
+    void findByLoginId() {
+        Account account = accountRepository.findByLoginId("test");
+        assertThat(account).isNotNull();
+        assertThat(account.getEmail()).isEqualTo("test@email.com");
+        assertThat(account.getNickname()).isEqualTo("test");
+        assertThat(accountRepository.findByLoginId("test2")).isNull();
+    }
 }
