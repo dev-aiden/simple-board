@@ -16,6 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -200,5 +204,41 @@ class ApisTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
                 .andExpect(unauthenticated());
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("프로필 수정 테스트 - 입력값 에러")
+    @Test
+    void profileUpdate_error_input() throws Exception {
+        mockMvc.perform(post("/settings/profile")
+                .param("nickname", "aiden222222222222")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/profile"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("profile"))
+                .andExpect(model().hasErrors())
+                .andExpect(authenticated().withUsername("aiden"));
+
+        Account aiden = accountRepository.findByLoginId("aiden");
+        assertThat(aiden.getNickname()).isEqualTo("aiden");
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("프로필 수정 테스트 - 입력값 정상")
+    @Test
+    void profileUpdate_correct_input() throws Exception {
+        mockMvc.perform(post("/settings/profile")
+                .param("nickname", "aiden2")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings/profile"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(authenticated().withUsername("aiden"));
+
+        Account aiden = accountRepository.findByLoginId("aiden");
+        assertThat("aiden2").isEqualTo(aiden.getNickname());
     }
 }

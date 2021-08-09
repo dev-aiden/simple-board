@@ -2,6 +2,7 @@ package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.infra.mail.EmailMessage;
 import com.aiden.dev.simpleboard.infra.mail.EmailService;
+import com.aiden.dev.simpleboard.modules.account.form.Profile;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -71,5 +72,10 @@ public class AccountService implements UserDetailsService {
     public void completeSignUp(Account account) {
         account.completeSignUp();
         login(account);
+    }
+
+    public void updateProfile(Account account, Profile profile) {
+        account.setNickname(profile.getNickname());
+        accountRepository.save(account);
     }
 }

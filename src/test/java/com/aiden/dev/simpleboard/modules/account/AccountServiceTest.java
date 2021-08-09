@@ -1,6 +1,7 @@
 package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.infra.mail.EmailService;
+import com.aiden.dev.simpleboard.modules.account.form.Profile;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -69,10 +70,12 @@ class AccountServiceTest {
     @Test
     void login() {
         // Given
-        Account account = Account.builder()
-                .loginId("test")
-                .password("testtest")
-                .build();
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setPassword("testtest");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        Account account = accountService.processNewAccount(signUpForm);
 
         // When
         accountService.login(account);
@@ -80,7 +83,6 @@ class AccountServiceTest {
 
         // Then
         assertThat(authenticationAccount.getUsername()).isEqualTo("test");
-        assertThat(authenticationAccount.getPassword()).isEqualTo("testtest");
     }
 
     @DisplayName("유저 정보 조회 테스트 - 사용자 아이디 미존재")
@@ -114,10 +116,12 @@ class AccountServiceTest {
     @Test
     void completeSignUp() {
         // Given
-        Account account = Account.builder()
-                .loginId("test")
-                .password("testtest")
-                .build();
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setPassword("testtest");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        Account account = accountService.processNewAccount(signUpForm);
 
         // When
         accountService.completeSignUp(account);
@@ -128,6 +132,26 @@ class AccountServiceTest {
 
         UserAccount authenticationAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         assertThat(authenticationAccount.getUsername()).isEqualTo("test");
-        assertThat(authenticationAccount.getPassword()).isEqualTo("testtest");
+    }
+
+    @DisplayName("프로필 수정 테스트 - 입력값 정상")
+    @Test
+    void updateProfile() {
+        // Given
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setPassword("testtest");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        Account account = accountService.processNewAccount(signUpForm);
+
+        Profile profile = new Profile();
+        profile.setNickname("test2");
+
+        // When
+        accountService.updateProfile(account, profile);
+
+        // Then
+        assertThat(account.getNickname()).isEqualTo("test2");
     }
 }

@@ -4,7 +4,6 @@ import com.aiden.dev.simpleboard.modules.account.validator.SignUpFormValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -121,7 +120,7 @@ class AccountControllerTest {
                 .andExpect(view().name("account/checked-email"));
     }
 
-    @WithAccount(loginId = "aiden", role = "ROLE_USER")
+    @WithAccount(loginId = "aiden")
     @DisplayName("인증 메일 페이지 잘 보이는지 확인")
     @Test
     void checkEmail() throws Exception {
