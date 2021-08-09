@@ -10,16 +10,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.sql.DataSource;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@AutoConfigureTestDatabase
 @WebMvcTest(MainController.class)
 class MainControllerTest {
 
     @Autowired MockMvc mockMvc;
     @MockBean AccountService accountService;
+    @MockBean DataSource dataSource;
 
     @DisplayName("메인 페이지 보이는지 테스트 - Account 미존재")
     @Test

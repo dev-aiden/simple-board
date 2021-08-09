@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.sql.DataSource;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -18,7 +20,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@AutoConfigureTestDatabase
 @WebMvcTest(AccountController.class)
 class AccountControllerTest {
 
@@ -26,6 +27,7 @@ class AccountControllerTest {
     @MockBean SignUpFormValidator signUpFormValidator;
     @MockBean AccountService accountService;
     @MockBean AccountRepository accountRepository;
+    @MockBean DataSource dataSource;
 
     @DisplayName("회원가입 페이지 보이는지 테스트")
     @Test
