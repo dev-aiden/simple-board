@@ -205,7 +205,7 @@ class ApisTest {
     @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("프로필 수정 테스트 - 입력값 에러")
     @Test
-    void profileUpdate_error_input() throws Exception {
+    void updateProfile_error_input() throws Exception {
         mockMvc.perform(post("/settings/profile")
                 .param("nickname", "aiden222222222222")
                 .param("profileImage", "aiden")
@@ -225,7 +225,7 @@ class ApisTest {
     @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("프로필 수정 테스트 - 입력값 정상")
     @Test
-    void profileUpdate_correct_input() throws Exception {
+    void updateProfile_correct_input() throws Exception {
         mockMvc.perform(post("/settings/profile")
                 .param("nickname", "aiden2")
                 .param("profileImage", "aiden2")
@@ -238,5 +238,47 @@ class ApisTest {
 
         Account aiden = accountRepository.findByLoginId("aiden");
         assertThat("aiden2").isEqualTo(aiden.getNickname());
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("비밀번호 변경 테스트 - 입력값 에러")
+    @Test
+    void updatePassword_error_input() throws Exception {
+        Account aiden = accountRepository.findByLoginId("aiden");
+        String originPassword = aiden.getPassword();
+
+        mockMvc.perform(post("/settings/password")
+                .param("newPassword", "11111111")
+                .param("newPasswordConfirm", "11111112")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/password"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("passwordForm"))
+                .andExpect(model().hasErrors())
+                .andExpect(authenticated().withUsername("aiden"));
+
+        assertThat(aiden.getPassword()).isEqualTo(originPassword);
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("비밀번호 변경 테스트 - 입력값 정상")
+    @Test
+    void updatePassword_correct_input() throws Exception {
+        Account aiden = accountRepository.findByLoginId("aiden");
+        String originPassword = aiden.getPassword();
+
+        mockMvc.perform(post("/settings/password")
+                .param("newPassword", "11111111")
+                .param("newPasswordConfirm", "11111111")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings/password"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(authenticated().withUsername("aiden"));
+
+        assertThat(aiden.getPassword()).isNotEqualTo(originPassword);
     }
 }

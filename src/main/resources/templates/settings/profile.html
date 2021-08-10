@@ -6,10 +6,10 @@
 
 <div class="container">
   <div class="row mt-5 justify-content-center">
-    <div class="col-2">
+    <div class="col-1">
       <div th:replace="fragments.html :: settings-menu(currentMenu='profile')"></div>
     </div>
-    <div class="col-4">
+    <div class="col-5">
       <div th:if="${message}" class="alert alert-info alert-dismissible fade show" role="alert">
         <span th:text="${message}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

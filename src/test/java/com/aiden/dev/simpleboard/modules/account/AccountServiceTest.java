@@ -1,6 +1,7 @@
 package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.infra.mail.EmailService;
+import com.aiden.dev.simpleboard.modules.account.form.PasswordForm;
 import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,6 +27,7 @@ import static org.mockito.Mockito.verify;
 class AccountServiceTest {
 
     @Autowired AccountService accountService;
+    @Autowired PasswordEncoder passwordEncoder;
     @MockBean EmailService emailService;
 
     @DisplayName("계정 생성 후 메일 발송되는지 테스트")
@@ -134,7 +137,7 @@ class AccountServiceTest {
         assertThat(authenticationAccount.getUsername()).isEqualTo("test");
     }
 
-    @DisplayName("프로필 수정 테스트 - 입력값 정상")
+    @DisplayName("프로필 수정 테스트")
     @Test
     void updateProfile() {
         // Given
@@ -153,5 +156,27 @@ class AccountServiceTest {
 
         // Then
         assertThat(account.getNickname()).isEqualTo("test2");
+    }
+
+    @DisplayName("비밀번호 변경 테스트")
+    @Test
+    void updatePassword() {
+        // Given
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setPassword("testtest");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        Account account = accountService.processNewAccount(signUpForm);
+        String originPassword = account.getPassword();
+
+        PasswordForm passwordForm = new PasswordForm();
+        passwordForm.setNewPassword("aaaaaaaa");
+
+        // When
+        accountService.updatePassword(account, passwordForm.getNewPassword());
+
+        // Then
+        assertThat(account.getPassword()).isNotEqualTo(originPassword);
     }
 }
