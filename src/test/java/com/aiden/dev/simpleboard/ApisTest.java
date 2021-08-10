@@ -212,6 +212,7 @@ class ApisTest {
     void profileUpdate_error_input() throws Exception {
         mockMvc.perform(post("/settings/profile")
                 .param("nickname", "aiden222222222222")
+                .param("profileImage", "aiden")
                 .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -231,6 +232,7 @@ class ApisTest {
     void profileUpdate_correct_input() throws Exception {
         mockMvc.perform(post("/settings/profile")
                 .param("nickname", "aiden2")
+                .param("profileImage", "aiden2")
                 .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())

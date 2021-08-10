@@ -53,6 +53,7 @@ class SettingsControllerTest {
     void profileUpdate() throws Exception {
         mockMvc.perform(post("/settings/profile")
                 .param("nickname", "aiden2")
+                .param("profileImage", "aiden2")
                 .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())

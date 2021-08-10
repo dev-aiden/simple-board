@@ -76,6 +76,7 @@ public class AccountService implements UserDetailsService {
 
     public void updateProfile(Account account, Profile profile) {
         account.setNickname(profile.getNickname());
+        account.setProfileImage(profile.getProfileImage());
         accountRepository.save(account);
     }
 }
