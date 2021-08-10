@@ -10,7 +10,7 @@
       <div th:replace="fragments.html :: settings-menu(currentMenu='profile')"></div>
     </div>
     <div class="col-4">
-      <div th:if="${message}" class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+      <div th:if="${message}" class="alert alert-info alert-dismissible fade show" role="alert">
         <span th:text="${message}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
@@ -19,12 +19,14 @@
         <h2 class="col-sm-12" th:text="${account.nickname}"></h2>
       </div>
       <div class="row mt-3">
-        <form class="col-sm-6" th:action="@{/settings/profile}" th:object="${profile}" method="post" novalidate>
+        <form class="col-sm-6" th:action="@{/settings/profile}" th:object="${profileForm}" method="post" novalidate>
           <div class="form-group pb-2">
             <label for="nickname">닉네임</label>
-            <input id="nickname" type="text" th:field="*{nickname}" class="form-control" placeholder="변경할 닉네임을 입력하세요." aria-describedby="nicknameHelp" required min="3" max="10">
-            <small id="nicknameHelp" class="form-text text-muted">3자 이상 10자 이하로 입력하세요.</small>
-            <small class="form-text text-danger" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}">3자 이상 10자 이하로 입력하세요.</small>
+            <input id="nickname" type="text" th:field="*{nickname}" class="form-control" placeholder="nickname" aria-describedby="nicknameHelp" required minlength="3" maxlength="10">
+            <small id="nicknameHelp" class="form-text text-muted">영어, 한글, 숫자로 구성된 닉네임을 입력하세요. (3~10자)</small>
+            <br/>
+            <small class="invalid-feedback">닉네임 길이가 잘못되었습니다!</small>
+            <small class="form-text text-danger" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></small>
           </div>
           <div class="form-group">
             <input id="profileImage" type="hidden" th:field="*{profileImage}" class="form-control" />
@@ -40,8 +42,8 @@
               프로필 이미지
             </div>
             <div id="current-profile-image" class="mt-3">
-              <svg th:if="${#strings.isEmpty(profile.profileImage)}" class="rounded" th:data-jdenticon-value="${account.nickname}" width="125" height="125"></svg>
-              <img th:if="${!#strings.isEmpty(profile.profileImage)}" class="rounded" th:src="${profile.profileImage}" width="125" height="125" alt="name" th:alt="${account.nickname}"/>
+              <svg th:if="${#strings.isEmpty(profileForm.profileImage)}" class="rounded" th:data-jdenticon-value="${account.nickname}" width="125" height="125"></svg>
+              <img th:if="${!#strings.isEmpty(profileForm.profileImage)}" class="rounded" th:src="${profileForm.profileImage}" width="125" height="125" alt="name" th:alt="${account.nickname}"/>
             </div>
             <div id="new-profile-image" class="mt-3"></div>
             <div class="card-body">

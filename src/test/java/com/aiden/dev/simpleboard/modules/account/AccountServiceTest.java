@@ -1,7 +1,7 @@
 package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.infra.mail.EmailService;
-import com.aiden.dev.simpleboard.modules.account.form.Profile;
+import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -145,11 +145,11 @@ class AccountServiceTest {
         signUpForm.setEmail("test@email.com");
         Account account = accountService.processNewAccount(signUpForm);
 
-        Profile profile = new Profile();
-        profile.setNickname("test2");
+        ProfileForm profileForm = new ProfileForm();
+        profileForm.setNickname("test2");
 
         // When
-        accountService.updateProfile(account, profile);
+        accountService.updateProfile(account, profileForm);
 
         // Then
         assertThat(account.getNickname()).isEqualTo("test2");

@@ -1,13 +1,11 @@
 package com.aiden.dev.simpleboard.modules.account;
 
-import com.aiden.dev.simpleboard.modules.account.form.Profile;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.Errors;
 
 import javax.sql.DataSource;
 
@@ -44,7 +42,7 @@ class SettingsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("settings/profile"))
                 .andExpect(model().attributeExists("account"))
-                .andExpect(model().attributeExists("profile"));
+                .andExpect(model().attributeExists("profileForm"));
     }
 
     @WithAccount(loginId = "aiden")
