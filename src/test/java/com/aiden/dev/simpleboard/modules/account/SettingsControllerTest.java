@@ -15,8 +15,7 @@ import javax.sql.DataSource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -28,9 +27,9 @@ class SettingsControllerTest {
     @MockBean DataSource dataSource;
     @MockBean ModelMapper modelMapper;
 
-    @DisplayName("프로필 수정 페이지 보이는지 테스트 - 로그인 이전")
+    @DisplayName("프로필 변경 페이지 보이는지 테스트 - 로그인 이전")
     @Test
-    void updateProfileForm_not_current_account() throws Exception {
+    void updateProfileForm_before_login() throws Exception {
         mockMvc.perform(get("/settings/profile"))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
@@ -38,9 +37,9 @@ class SettingsControllerTest {
     }
 
     @WithAccount(loginId = "aiden")
-    @DisplayName("프로필 수정 페이지 보이는지 테스트 - 로그인 이후")
+    @DisplayName("프로필 변경 페이지 보이는지 테스트 - 로그인 이후")
     @Test
-    void updateProfileForm_current_account() throws Exception {
+    void updateProfileForm_after_login() throws Exception {
         when(modelMapper.map(any(), any())).thenReturn(new ProfileForm());
 
         mockMvc.perform(get("/settings/profile"))
@@ -51,10 +50,20 @@ class SettingsControllerTest {
                 .andExpect(model().attributeExists("profileForm"));
     }
 
-    @WithAccount(loginId = "aiden")
-    @DisplayName("프로필 수정 테스트")
+    @DisplayName("프로필 변경 테스트 - 로그인 이전")
     @Test
-    void updateProfile() throws Exception {
+    void updateProfile_before_login() throws Exception {
+        mockMvc.perform(post("/settings/profile")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("프로필 변경 테스트 - 로그인 이후")
+    @Test
+    void updateProfile_after_login() throws Exception {
         mockMvc.perform(post("/settings/profile")
                 .param("nickname", "aiden2")
                 .param("profileImage", "aiden2")
@@ -67,9 +76,9 @@ class SettingsControllerTest {
         verify(accountService, times(1)).updateProfile(any(), any());
     }
 
-    @DisplayName("비밀번호 수정 페이지 보이는지 테스트 - 로그인 이전")
+    @DisplayName("비밀번호 변경 페이지 보이는지 테스트 - 로그인 이전")
     @Test
-    void updatePasswordForm_not_current_account() throws Exception {
+    void updatePasswordForm_before_login() throws Exception {
         mockMvc.perform(get("/settings/password"))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
@@ -77,9 +86,9 @@ class SettingsControllerTest {
     }
 
     @WithAccount(loginId = "aiden")
-    @DisplayName("프로필 수정 페이지 보이는지 테스트 - 로그인 이후")
+    @DisplayName("비밀번호 변경 페이지 보이는지 테스트 - 로그인 이후")
     @Test
-    void updatePasswordForm_current_account() throws Exception {
+    void updatePasswordForm_after_login() throws Exception {
         mockMvc.perform(get("/settings/password"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -88,10 +97,20 @@ class SettingsControllerTest {
                 .andExpect(model().attributeExists("passwordForm"));
     }
 
-    @WithAccount(loginId = "aiden")
-    @DisplayName("비밀번호 변경 테스트")
+    @DisplayName("비밀번호 변경 테스트 - 로그인 이전")
     @Test
-    void updatePassword() throws Exception {
+    void updatePassword_before_login() throws Exception {
+        mockMvc.perform(post("/settings/password")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("비밀번호 변경 테스트 - 로그인 이후")
+    @Test
+    void updatePassword_after_login() throws Exception {
         mockMvc.perform(post("/settings/password")
                 .param("newPassword", "11111111")
                 .param("newPasswordConfirm", "11111111")
@@ -104,9 +123,9 @@ class SettingsControllerTest {
         verify(accountService, times(1)).updatePassword(any(), any());
     }
 
-    @DisplayName("알림 수정 페이지 보이는지 테스트 - 로그인 이전")
+    @DisplayName("알림 변경 페이지 보이는지 테스트 - 로그인 이전")
     @Test
-    void updateNotification_not_current_account() throws Exception {
+    void updateNotificationForm_before_login() throws Exception {
         mockMvc.perform(get("/settings/notification"))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
@@ -114,9 +133,9 @@ class SettingsControllerTest {
     }
 
     @WithAccount(loginId = "aiden")
-    @DisplayName("알림 수정 페이지 보이는지 테스트 - 로그인 이후")
+    @DisplayName("알림 변경 페이지 보이는지 테스트 - 로그인 이후")
     @Test
-    void updateNotification_current_account() throws Exception {
+    void updateNotificationForm_after_login() throws Exception {
         when(modelMapper.map(any(), any())).thenReturn(new NotificationForm());
 
         mockMvc.perform(get("/settings/notification"))
@@ -127,10 +146,20 @@ class SettingsControllerTest {
                 .andExpect(model().attributeExists("notificationForm"));
     }
 
-    @WithAccount(loginId = "aiden")
-    @DisplayName("알림 변경 테스트")
+    @DisplayName("알림 변경 테스트 - 로그인 이전")
     @Test
-    void updateNotification() throws Exception {
+    void updateNotification_before_login() throws Exception {
+        mockMvc.perform(post("/settings/notification")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("알림 변경 테스트 - 로그인 이후")
+    @Test
+    void updateNotification_after_login() throws Exception {
         mockMvc.perform(post("/settings/notification")
                 .param("commentNotification", "false")
                 .with(csrf()))
@@ -140,5 +169,49 @@ class SettingsControllerTest {
                 .andExpect(flash().attributeExists("message"));
 
         verify(accountService, times(1)).updateNotification(any(), any());
+    }
+
+    @DisplayName("계정 삭제 페이지 보이는지 테스트 - 로그인 이전")
+    @Test
+    void deleteAccountForm_before_login() throws Exception {
+        mockMvc.perform(get("/settings/account"))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("계정 삭제 페이지 보이는지 테스트 - 로그인 이후")
+    @Test
+    void deleteAccountForm_after_login() throws Exception {
+        mockMvc.perform(get("/settings/account"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/account"))
+                .andExpect(model().attributeExists("account"));
+    }
+
+    @DisplayName("계정 삭제 테스트 - 로그인 이전")
+    @Test
+    void deleteAccount_before_login() throws Exception {
+        mockMvc.perform(delete("/settings/account")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("계정 삭제 테스트 - 로그인 이후")
+    @Test
+    void deleteAccount_after_login() throws Exception {
+        mockMvc.perform(delete("/settings/account")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("message"));
+
+        verify(accountService, times(1)).deleteAccount(any());
     }
 }

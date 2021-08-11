@@ -6,14 +6,12 @@ import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import com.aiden.dev.simpleboard.modules.account.validator.PasswordFormValidator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
@@ -86,5 +84,20 @@ public class SettingsController {
         accountService.updateNotification(account, notificationForm);
         attributes.addFlashAttribute("message", "알림 설정을 변경했습니다.");
         return "redirect:/settings/notification";
+    }
+
+    @GetMapping("/account")
+    public String deleteAccountForm(@CurrentAccount Account account, Model model) {
+        model.addAttribute(account);
+        return "settings/account";
+    }
+
+    @DeleteMapping("/account")
+    public String deleteAccount(@CurrentAccount Account account, RedirectAttributes attributes) {
+        accountService.deleteAccount(account);
+        SecurityContextHolder.clearContext();
+
+        attributes.addFlashAttribute("message", "계정이 삭제되었습니다.");
+        return "redirect:/";
     }
 }

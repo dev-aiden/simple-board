@@ -202,4 +202,22 @@ class AccountServiceTest {
         // Then
         assertThat(account.isCommentNotification()).isNotEqualTo(originNotification);
     }
+
+    @DisplayName("계정 삭제 테스트")
+    @Test
+    void deleteAccount() {
+        // Given
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setPassword("testtest");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        Account account = accountService.processNewAccount(signUpForm);
+
+        // When
+        accountService.deleteAccount(account);
+
+        // Then
+        assertThrows(UsernameNotFoundException.class, () -> accountService.loadUserByUsername("test"));
+    }
 }

@@ -89,4 +89,8 @@ public class AccountService implements UserDetailsService {
         modelMapper.map(notificationForm, account);
         accountRepository.save(account);
     }
+
+    public void deleteAccount(Account account) {
+        accountRepository.delete(account);
+    }
 }

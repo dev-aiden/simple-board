@@ -11,3 +11,7 @@ spring:
     url: jdbc:h2:mem:test
     username: sa
     password:
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
