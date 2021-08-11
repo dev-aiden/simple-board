@@ -1,7 +1,10 @@
 package com.aiden.dev.simpleboard.modules.account;
 
+import com.aiden.dev.simpleboard.modules.account.form.NotificationForm;
+import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,6 +26,7 @@ class SettingsControllerTest {
     @Autowired MockMvc mockMvc;
     @MockBean AccountService accountService;
     @MockBean DataSource dataSource;
+    @MockBean ModelMapper modelMapper;
 
     @DisplayName("프로필 수정 페이지 보이는지 테스트 - 로그인 이전")
     @Test
@@ -37,6 +41,8 @@ class SettingsControllerTest {
     @DisplayName("프로필 수정 페이지 보이는지 테스트 - 로그인 이후")
     @Test
     void updateProfileForm_current_account() throws Exception {
+        when(modelMapper.map(any(), any())).thenReturn(new ProfileForm());
+
         mockMvc.perform(get("/settings/profile"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -96,5 +102,43 @@ class SettingsControllerTest {
                 .andExpect(flash().attributeExists("message"));
 
         verify(accountService, times(1)).updatePassword(any(), any());
+    }
+
+    @DisplayName("알림 수정 페이지 보이는지 테스트 - 로그인 이전")
+    @Test
+    void updateNotification_not_current_account() throws Exception {
+        mockMvc.perform(get("/settings/notification"))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("알림 수정 페이지 보이는지 테스트 - 로그인 이후")
+    @Test
+    void updateNotification_current_account() throws Exception {
+        when(modelMapper.map(any(), any())).thenReturn(new NotificationForm());
+
+        mockMvc.perform(get("/settings/notification"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/notification"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("notificationForm"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("알림 변경 테스트")
+    @Test
+    void updateNotification() throws Exception {
+        mockMvc.perform(post("/settings/notification")
+                .param("commentNotification", "false")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings/notification"))
+                .andExpect(flash().attributeExists("message"));
+
+        verify(accountService, times(1)).updateNotification(any(), any());
     }
 }

@@ -9,7 +9,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Data
-@NoArgsConstructor
 public class ProfileForm {
 
     @NotBlank
@@ -18,9 +17,4 @@ public class ProfileForm {
     private String nickname;
 
     private String profileImage;
-
-    public ProfileForm(Account account) {
-        this.nickname = account.getNickname();
-        this.profileImage = account.getProfileImage();
-    }
 }

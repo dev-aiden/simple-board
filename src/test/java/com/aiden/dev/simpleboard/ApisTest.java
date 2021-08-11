@@ -281,4 +281,23 @@ class ApisTest {
 
         assertThat(aiden.getPassword()).isNotEqualTo(originPassword);
     }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("알림 변경 테스트")
+    @Test
+    void updateNotification() throws Exception {
+        Account aiden = accountRepository.findByLoginId("aiden");
+        boolean originNotification = aiden.isCommentNotification();
+
+        mockMvc.perform(post("/settings/notification")
+                .param("commentNoticiation", String.valueOf(!originNotification))
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings/notification"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(authenticated().withUsername("aiden"));
+
+        assertThat(aiden.isCommentNotification()).isNotEqualTo(originNotification);
+    }
 }

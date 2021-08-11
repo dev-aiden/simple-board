@@ -1,9 +1,11 @@
 package com.aiden.dev.simpleboard.modules.account;
 
+import com.aiden.dev.simpleboard.modules.account.form.NotificationForm;
 import com.aiden.dev.simpleboard.modules.account.form.PasswordForm;
 import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import com.aiden.dev.simpleboard.modules.account.validator.PasswordFormValidator;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -11,29 +13,32 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
 @Controller
+@RequestMapping("/settings")
 @RequiredArgsConstructor
 public class SettingsController {
 
     private final AccountService accountService;
+    private final ModelMapper modelMapper;
 
     @InitBinder("passwordForm")
     public void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(new PasswordFormValidator());
     }
 
-    @GetMapping("/settings/profile")
+    @GetMapping("/profile")
     public String updateProfileForm(@CurrentAccount Account account, Model model) {
         model.addAttribute(account);
-        model.addAttribute(new ProfileForm(account));
+        model.addAttribute(modelMapper.map(account, ProfileForm.class));
         return "settings/profile";
     }
 
-    @PostMapping("/settings/profile")
+    @PostMapping("/profile")
     public String updateProfile(@CurrentAccount Account account, @Valid ProfileForm profileForm, Errors errors, Model model, RedirectAttributes attributes) {
         if(errors.hasErrors()) {
             model.addAttribute(account);
@@ -45,14 +50,14 @@ public class SettingsController {
         return "redirect:/settings/profile";
     }
 
-    @GetMapping("/settings/password")
+    @GetMapping("/password")
     public String updatePasswordForm(@CurrentAccount Account account, Model model) {
         model.addAttribute(account);
         model.addAttribute(new PasswordForm());
         return "settings/password";
     }
 
-    @PostMapping("/settings/password")
+    @PostMapping("/password")
     public String updatePassword(@CurrentAccount Account account, @Valid PasswordForm passwordForm, Errors errors, Model model, RedirectAttributes attributes) {
         if(errors.hasErrors()) {
             model.addAttribute(account);
@@ -62,5 +67,24 @@ public class SettingsController {
         accountService.updatePassword(account, passwordForm.getNewPassword());
         attributes.addFlashAttribute("message", "비밀번호를 변경했습니다.");
         return "redirect:/settings/password";
+    }
+
+    @GetMapping("/notification")
+    public String updateNotificationForm(@CurrentAccount Account account, Model model) {
+        model.addAttribute(account);
+        model.addAttribute(modelMapper.map(account, NotificationForm.class));
+        return "settings/notification";
+    }
+
+    @PostMapping("/notification")
+    public String updateNotification(@CurrentAccount Account account, @Valid NotificationForm notificationForm, Errors errors, Model model, RedirectAttributes attributes) {
+        if(errors.hasErrors()) {
+            model.addAttribute(account);
+            return "settings/notification";
+        }
+
+        accountService.updateNotification(account, notificationForm);
+        attributes.addFlashAttribute("message", "알림 설정을 변경했습니다.");
+        return "redirect:/settings/notification";
     }
 }

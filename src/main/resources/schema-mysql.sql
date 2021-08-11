@@ -13,6 +13,7 @@ create table account (
     nickname varchar(255) not null,
     password varchar(255) not null,
     profile_image longtext,
+    comment_notification bit not null,
     primary key (id),
     CONSTRAINT UK_login_id UNIQUE (login_id),
     CONSTRAINT UK_email UNIQUE (email),

@@ -42,6 +42,8 @@ public class Account {
     @Lob
     private String profileImage;
 
+    private boolean commentNotification = true;
+
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
         this.emailCheckTokenGeneratedAt = LocalDateTime.now();

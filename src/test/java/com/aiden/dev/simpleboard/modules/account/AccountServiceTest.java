@@ -1,6 +1,7 @@
 package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.infra.mail.EmailService;
+import com.aiden.dev.simpleboard.modules.account.form.NotificationForm;
 import com.aiden.dev.simpleboard.modules.account.form.PasswordForm;
 import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
@@ -178,5 +179,27 @@ class AccountServiceTest {
 
         // Then
         assertThat(account.getPassword()).isNotEqualTo(originPassword);
+    }
+
+    @DisplayName("알림 변경 테스트")
+    @Test
+    void updateNotification() {
+        // Given
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setPassword("testtest");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        Account account = accountService.processNewAccount(signUpForm);
+        boolean originNotification = account.isCommentNotification();
+
+        NotificationForm notificationForm = new NotificationForm();
+        notificationForm.setCommentNotification(!originNotification);
+
+        // When
+        accountService.updateNotification(account, notificationForm);
+
+        // Then
+        assertThat(account.isCommentNotification()).isNotEqualTo(originNotification);
     }
 }
