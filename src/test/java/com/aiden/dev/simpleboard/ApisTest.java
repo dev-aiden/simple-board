@@ -4,6 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountRepository;
 import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
+import com.aiden.dev.simpleboard.modules.post.PostRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,6 +35,7 @@ class ApisTest {
     @Autowired MockMvc mockMvc;
     @Autowired AccountRepository accountRepository;
     @Autowired AccountService accountService;
+    @Autowired PostRepository postRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -347,5 +349,37 @@ class ApisTest {
                 .andExpect(unauthenticated());
 
         assertThat(accountRepository.findByLoginId("aiden").getPassword()).isNotEqualTo(originPassword);
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("잘못된 입력값으로 게시글 작성 시 게시글 작성 실패")
+    @Test
+    void writePost_wrong_input() throws Exception {
+        mockMvc.perform(post("/post/write")
+                .param("title", "")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("post/write"))
+                .andExpect(authenticated().withUsername("aiden"));
+
+        assertThat(postRepository.findByTitle("")).isNull();
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("올바른 입력값으로 게시글 작성 시 게시글 작성 성공")
+    @Test
+    void writePost_correct_input() throws Exception {
+        mockMvc.perform(post("/post/write")
+                .param("title", "title")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("alertType"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(authenticated().withUsername("aiden"));
+
+        assertThat(postRepository.findByTitle("title")).isNotNull();
     }
 }

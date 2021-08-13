@@ -17,8 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @Transactional
 @SpringBootTest
@@ -220,7 +219,7 @@ class AccountServiceTest {
 
     @DisplayName("비밀번호 찾기 메일 발송 테스트")
     @Test
-    void sendFindPasswordEmail() {
+    void issueTemporaryPassword() {
         // Given
         SignUpForm signUpForm = new SignUpForm();
         signUpForm.setLoginId("test");
@@ -235,7 +234,7 @@ class AccountServiceTest {
         findPasswordForm.setEmail("test@email.com");
 
         // When
-        accountService.sendFindPasswordEmail(findPasswordForm);
+        accountService.issueTemporaryPassword(findPasswordForm);
 
         // Then
         assertThat(account.getPassword()).isNotEqualTo(originPassword);

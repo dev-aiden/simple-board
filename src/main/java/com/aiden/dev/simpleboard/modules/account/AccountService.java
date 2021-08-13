@@ -96,15 +96,23 @@ public class AccountService implements UserDetailsService {
         accountRepository.delete(account);
     }
 
-    public void sendFindPasswordEmail(FindPasswordForm findPasswordForm) {
+    public void issueTemporaryPassword(FindPasswordForm findPasswordForm) {
+        String temporaryPassword = createTemporaryPassword(findPasswordForm);
+        sendFindPasswordEmail(findPasswordForm.getEmail(), temporaryPassword);
+    }
+
+    private String createTemporaryPassword(FindPasswordForm findPasswordForm) {
         Account account = accountRepository.findByLoginId(findPasswordForm.getLoginId());
         String plainPassword = UUID.randomUUID().toString();
         updatePassword(account, plainPassword);
+        return plainPassword;
+    }
 
+    private void sendFindPasswordEmail(String email, String password) {
         EmailMessage emailMessage = EmailMessage.builder()
-                .to(findPasswordForm.getEmail())
+                .to(email)
                 .subject("Simple Board 임시 비밀번호 발급")
-                .message("임시 비밀번호 : " + plainPassword + "\n로그인 후 반드시 비밀번호를 변경하세요!")
+                .message("임시 비밀번호 : " + password + "\n로그인 후 반드시 비밀번호를 변경하세요!")
                 .build();
         emailService.sendEmail(emailMessage);
     }

@@ -122,7 +122,7 @@ public class AccountController {
             return "account/find-password";
         }
 
-        accountService.sendFindPasswordEmail(findPasswordForm);
+        accountService.issueTemporaryPassword(findPasswordForm);
 
         attributes.addFlashAttribute("alertType", "alert-warning");
         attributes.addFlashAttribute("message", "비밀번호 찾기를 위한 메일이 발송되었습니다. 메일을 확인해 주세요.");

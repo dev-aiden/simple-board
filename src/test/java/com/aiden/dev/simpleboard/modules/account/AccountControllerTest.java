@@ -234,6 +234,6 @@ class AccountControllerTest {
                 .andExpect(flash().attributeExists("alertType"))
                 .andExpect(flash().attributeExists("message"));
 
-        verify(accountService, times(1)).sendFindPasswordEmail(any());
+        verify(accountService, times(1)).issueTemporaryPassword(any());
     }
 }

@@ -43,4 +43,11 @@ class PostRepositoryTest {
         List<Post> posts = postRepository.findAll();
         assertThat(posts.size()).isEqualTo(1);
     }
+
+    @DisplayName("제목으로 게시글 조회 쿼리 테스트")
+    @Test
+    void findByTitle() {
+        Post post = postRepository.findByTitle("post test");
+        assertThat(post).isNotNull();
+    }
 }
