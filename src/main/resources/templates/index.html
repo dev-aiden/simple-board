@@ -8,7 +8,7 @@
   게시글이나 댓글을 작성하시려면 <a th:href="@{/check-email}" class="alert-link">계정 인증 이메일을 확인</a>하세요.
 </div>
 
-<div class="alert alert-danger alert-dismissible fade show text-center" role="alert" th:if="${message}">
+<div class="alert alert-dismissible fade show text-center" role="alert" th:classappend="${alertType}" th:if="${message}">
   <span th:text="${message}"></span>
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>

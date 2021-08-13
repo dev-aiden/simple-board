@@ -314,4 +314,38 @@ class ApisTest {
 
         assertThat(accountRepository.findByNickname("aiden")).isNull();
     }
+
+    @DisplayName("잘못된 입력값으로 비밀번호 찾기 시 비밀번호 찾기 실패")
+    @Test
+    void findPassword_wrong_input() throws Exception {
+        mockMvc.perform(post("/find-password")
+                .param("loginId", "aiden")
+                .param("email", "aiden")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/find-password"))
+                .andExpect(unauthenticated());
+
+        assertThat(accountRepository.existsByLoginId("test")).isFalse();
+    }
+
+    @DisplayName("올바른 입력값으로 비밀번호 찾기 시 비밀번호 찾기 성공")
+    @Test
+    void findPassword_correct_input() throws Exception {
+        String originPassword = accountRepository.findByLoginId("aiden").getPassword();
+
+        mockMvc.perform(post("/find-password")
+                .param("loginId", "aiden")
+                .param("email", "aiden@email.com")
+                .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("alertType"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(unauthenticated());
+
+        assertThat(accountRepository.findByLoginId("aiden").getPassword()).isNotEqualTo(originPassword);
+    }
 }

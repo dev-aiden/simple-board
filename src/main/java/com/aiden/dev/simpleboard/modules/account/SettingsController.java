@@ -25,7 +25,7 @@ public class SettingsController {
     private final ModelMapper modelMapper;
 
     @InitBinder("passwordForm")
-    public void initBinder(WebDataBinder webDataBinder) {
+    public void passwordFormInitBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(new PasswordFormValidator());
     }
 
@@ -97,6 +97,7 @@ public class SettingsController {
         accountService.deleteAccount(account);
         SecurityContextHolder.clearContext();
 
+        attributes.addFlashAttribute("alertType", "alert-danger");
         attributes.addFlashAttribute("message", "계정이 삭제되었습니다.");
         return "redirect:/";
     }

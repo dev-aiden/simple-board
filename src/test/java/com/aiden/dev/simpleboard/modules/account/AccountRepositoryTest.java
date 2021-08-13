@@ -25,21 +25,21 @@ class AccountRepositoryTest {
         accountRepository.save(account);
     }
 
-    @DisplayName("LoginID가 존재하는지 확인하는 쿼리 테스트")
+    @DisplayName("LoginID로 계정 존재여부 확인하는 쿼리 테스트")
     @Test
     void existsByLoginId() {
         assertThat(accountRepository.existsByLoginId("test")).isTrue();
         assertThat(accountRepository.existsByLoginId("test2")).isFalse();
     }
 
-    @DisplayName("Nickname이 존재하는지 확인하는 쿼리 테스트")
+    @DisplayName("Nickname으로 계정 존재여부 확인하는 쿼리 테스트")
     @Test
     void existsByNickname() {
         assertThat(accountRepository.existsByNickname("test")).isTrue();
         assertThat(accountRepository.existsByNickname("test2")).isFalse();
     }
 
-    @DisplayName("Email이 존재하는지 확인하는 쿼리 테스트")
+    @DisplayName("Email로 계정 존재여부 확인하는 쿼리 테스트")
     @Test
     void existsByEmail() {
         assertThat(accountRepository.existsByEmail("test@email.com")).isTrue();
@@ -74,5 +74,13 @@ class AccountRepositoryTest {
         assertThat(account.getEmail()).isEqualTo("test@email.com");
         assertThat(account.getLoginId()).isEqualTo("test");
         assertThat(accountRepository.findByNickname("test2")).isNull();
+    }
+
+    @DisplayName("LoginId와 Email로 계정 존재여부 확인하는 쿼리 테스트")
+    @Test
+    void existsByLoginIdAndEmail() {
+        assertThat(accountRepository.existsByLoginIdAndEmail("test", "test@email.com")).isTrue();
+        assertThat(accountRepository.existsByLoginIdAndEmail("test2", "test@email.com")).isFalse();
+        assertThat(accountRepository.existsByLoginIdAndEmail("test", "test2@email.com")).isFalse();
     }
 }

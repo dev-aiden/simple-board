@@ -1,10 +1,7 @@
 package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.infra.mail.EmailService;
-import com.aiden.dev.simpleboard.modules.account.form.NotificationForm;
-import com.aiden.dev.simpleboard.modules.account.form.PasswordForm;
-import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
-import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
+import com.aiden.dev.simpleboard.modules.account.form.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @Transactional
 @SpringBootTest
@@ -67,7 +63,7 @@ class AccountServiceTest {
         accountService.sendSignUpConfirmEmail(account);
 
         // Then
-        verify(emailService, times(1)).sendEmail(any());
+        verify(emailService, atLeast(1)).sendEmail(any());
     }
 
     @DisplayName("로그인 테스트")
@@ -219,5 +215,29 @@ class AccountServiceTest {
 
         // Then
         assertThrows(UsernameNotFoundException.class, () -> accountService.loadUserByUsername("test"));
+    }
+
+    @DisplayName("비밀번호 찾기 메일 발송 테스트")
+    @Test
+    void sendFindPasswordEmail() {
+        // Given
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setPassword("testtest");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        Account account = accountService.processNewAccount(signUpForm);
+        String originPassword = account.getPassword();
+
+        FindPasswordForm findPasswordForm = new FindPasswordForm();
+        findPasswordForm.setLoginId("test");
+        findPasswordForm.setEmail("test@email.com");
+
+        // When
+        accountService.sendFindPasswordEmail(findPasswordForm);
+
+        // Then
+        assertThat(account.getPassword()).isNotEqualTo(originPassword);
+        verify(emailService, atLeast(1)).sendEmail(any());
     }
 }

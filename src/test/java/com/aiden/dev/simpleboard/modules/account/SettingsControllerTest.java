@@ -210,6 +210,7 @@ class SettingsControllerTest {
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("alertType"))
                 .andExpect(flash().attributeExists("message"));
 
         verify(accountService, times(1)).deleteAccount(any());

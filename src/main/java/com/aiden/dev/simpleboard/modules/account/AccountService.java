@@ -2,6 +2,7 @@ package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.infra.mail.EmailMessage;
 import com.aiden.dev.simpleboard.infra.mail.EmailService;
+import com.aiden.dev.simpleboard.modules.account.form.FindPasswordForm;
 import com.aiden.dev.simpleboard.modules.account.form.NotificationForm;
 import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -92,5 +94,18 @@ public class AccountService implements UserDetailsService {
 
     public void deleteAccount(Account account) {
         accountRepository.delete(account);
+    }
+
+    public void sendFindPasswordEmail(FindPasswordForm findPasswordForm) {
+        Account account = accountRepository.findByLoginId(findPasswordForm.getLoginId());
+        String plainPassword = UUID.randomUUID().toString();
+        updatePassword(account, plainPassword);
+
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(findPasswordForm.getEmail())
+                .subject("Simple Board 임시 비밀번호 발급")
+                .message("임시 비밀번호 : " + plainPassword + "\n로그인 후 반드시 비밀번호를 변경하세요!")
+                .build();
+        emailService.sendEmail(emailMessage);
     }
 }
