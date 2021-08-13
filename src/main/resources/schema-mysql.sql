@@ -28,3 +28,17 @@ create table persistent_logins (
     username varchar(64) not null,
     primary key (series)
 ) engine=InnoDB;
+
+drop table if exists post;
+create table post (
+    id bigint not null auto_increment,
+    account_id bigint,
+    contents longtext,
+    created_at datetime(6),
+    hits bigint default 0,
+    post_type varchar(255),
+    title varchar(255) not null,
+    updated_at datetime(6),
+    primary key (id),
+    foreign key (account_id) references account (id)
+) engine=InnoDB;

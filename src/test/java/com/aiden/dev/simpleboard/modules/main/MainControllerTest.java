@@ -5,7 +5,6 @@ import com.aiden.dev.simpleboard.modules.account.WithAccount;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +20,7 @@ class MainControllerTest {
 
     @Autowired MockMvc mockMvc;
     @MockBean AccountService accountService;
+    @MockBean PostService postService;
     @MockBean DataSource dataSource;
 
     @DisplayName("메인 페이지 보이는지 테스트 - Account 미존재")
@@ -29,7 +29,8 @@ class MainControllerTest {
         mockMvc.perform(get("/"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(view().name("index"));
+                .andExpect(view().name("index"))
+                .andExpect(model().attributeExists("posts"));
     }
 
     @WithAccount(loginId = "aiden")
@@ -40,7 +41,8 @@ class MainControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"))
-                .andExpect(model().attributeExists("account"));
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("posts"));
     }
 
     @DisplayName("로그인 페이지 보이는지 테스트")

@@ -1,7 +1,6 @@
 package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.modules.account.form.FindPasswordForm;
-import com.aiden.dev.simpleboard.modules.account.form.PasswordForm;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
 import com.aiden.dev.simpleboard.modules.account.validator.FindPasswordFormValidator;
 import com.aiden.dev.simpleboard.modules.account.validator.SignUpFormValidator;

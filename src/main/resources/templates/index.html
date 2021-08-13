@@ -27,75 +27,12 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-          <th scope="row">1</th>
-          <td>title</td>
-          <td>test</td>
-          <td>2021-01-01 11:11:11</td>
-          <td>1234</td>
-        </tr>
-        <tr>
-          <th scope="row">2</th>
-          <td>title</td>
-          <td>test</td>
-          <td>2021-01-01 11:11:11</td>
-          <td>1234</td>
-        </tr>
-        <tr>
-          <th scope="row">3</th>
-          <td>title</td>
-          <td>test</td>
-          <td>2021-01-01 11:11:11</td>
-          <td>1234</td>
-        </tr>
-        <tr>
-          <th scope="row">4</th>
-          <td>title</td>
-          <td>test</td>
-          <td>2021-01-01 11:11:11</td>
-          <td>1234</td>
-        </tr>
-        <tr>
-          <th scope="row">5</th>
-          <td>title</td>
-          <td>test</td>
-          <td>2021-01-01 11:11:11</td>
-          <td>1234</td>
-        </tr>
-        <tr>
-          <th scope="row">6</th>
-          <td>title</td>
-          <td>test</td>
-          <td>2021-01-01 11:11:11</td>
-          <td>1234</td>
-        </tr>
-        <tr>
-          <th scope="row">7</th>
-          <td>title</td>
-          <td>test</td>
-          <td>2021-01-01 11:11:11</td>
-          <td>1234</td>
-        </tr>
-        <tr>
-          <th scope="row">8</th>
-          <td>title</td>
-          <td>test</td>
-          <td>2021-01-01 11:11:11</td>
-          <td>1234</td>
-        </tr>
-        <tr>
-          <th scope="row">9</th>
-          <td>title</td>
-          <td>test</td>
-          <td>2021-01-01 11:11:11</td>
-          <td>1234</td>
-        </tr>
-        <tr>
-          <th scope="row">10</th>
-          <td>title</td>
-          <td>test</td>
-          <td>2021-01-01 11:11:11</td>
-          <td>1234</td>
+        <tr th:each="post, iStat : ${posts}">
+          <td th:text="${iStat.index + 1}"></td>
+          <td th:text="${post.getTitle()}"></td>
+          <td th:text="${post.getAccount().getNickname()}"></td>
+          <td th:text="${post.getCreatedAt()}"></td>
+          <td th:text="${post.getHits()}"></td>
         </tr>
         </tbody>
       </table>

@@ -3,7 +3,6 @@ package com.aiden.dev.simpleboard.modules.account;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -15,24 +14,21 @@ public class Account {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String loginId;
 
-    @NotNull
+    @Column(nullable = false)
     private String password;
 
-    @NotNull
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @NotNull
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String nickname;
 
     private boolean emailVerified;
 
-    @NotNull
+    @Column(nullable = false)
     private String emailCheckToken;
 
     private LocalDateTime emailCheckTokenGeneratedAt;
