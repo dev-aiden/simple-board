@@ -2,6 +2,8 @@ package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.modules.account.form.NotificationForm;
 import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
+import com.aiden.dev.simpleboard.modules.account.validator.PasswordFormValidator;
+import com.aiden.dev.simpleboard.modules.account.validator.ProfileFormValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -23,6 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SettingsControllerTest {
 
     @Autowired MockMvc mockMvc;
+    @MockBean PasswordFormValidator passwordFormValidator;
+    @MockBean ProfileFormValidator profileFormValidator;
     @MockBean AccountService accountService;
     @MockBean DataSource dataSource;
     @MockBean ModelMapper modelMapper;
@@ -41,6 +45,7 @@ class SettingsControllerTest {
     @Test
     void updateProfileForm_after_login() throws Exception {
         when(modelMapper.map(any(), any())).thenReturn(new ProfileForm());
+        when(profileFormValidator.supports(any())).thenReturn(true);
 
         mockMvc.perform(get("/settings/profile"))
                 .andDo(print())
@@ -64,6 +69,8 @@ class SettingsControllerTest {
     @DisplayName("프로필 변경 테스트 - 로그인 이후")
     @Test
     void updateProfile_after_login() throws Exception {
+        when(profileFormValidator.supports(any())).thenReturn(true);
+
         mockMvc.perform(post("/settings/profile")
                 .param("nickname", "aiden2")
                 .param("profileImage", "aiden2")
@@ -89,6 +96,8 @@ class SettingsControllerTest {
     @DisplayName("비밀번호 변경 페이지 보이는지 테스트 - 로그인 이후")
     @Test
     void updatePasswordForm_after_login() throws Exception {
+        when(passwordFormValidator.supports(any())).thenReturn(true);
+
         mockMvc.perform(get("/settings/password"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -111,6 +120,8 @@ class SettingsControllerTest {
     @DisplayName("비밀번호 변경 테스트 - 로그인 이후")
     @Test
     void updatePassword_after_login() throws Exception {
+        when(passwordFormValidator.supports(any())).thenReturn(true);
+
         mockMvc.perform(post("/settings/password")
                 .param("newPassword", "11111111")
                 .param("newPasswordConfirm", "11111111")

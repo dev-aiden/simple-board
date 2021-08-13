@@ -4,6 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.form.NotificationForm;
 import com.aiden.dev.simpleboard.modules.account.form.PasswordForm;
 import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import com.aiden.dev.simpleboard.modules.account.validator.PasswordFormValidator;
+import com.aiden.dev.simpleboard.modules.account.validator.ProfileFormValidator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,12 +22,19 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class SettingsController {
 
+    private final PasswordFormValidator passwordFormValidator;
+    private final ProfileFormValidator profileFormValidator;
     private final AccountService accountService;
     private final ModelMapper modelMapper;
 
     @InitBinder("passwordForm")
     public void passwordFormInitBinder(WebDataBinder webDataBinder) {
-        webDataBinder.addValidators(new PasswordFormValidator());
+        webDataBinder.addValidators(passwordFormValidator);
+    }
+
+    @InitBinder("profileForm")
+    public void profileFormInitBinder(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(profileFormValidator);
     }
 
     @GetMapping("/profile")
@@ -94,6 +102,8 @@ public class SettingsController {
 
     @DeleteMapping("/account")
     public String deleteAccount(@CurrentAccount Account account, RedirectAttributes attributes) {
+        // TODO 해당 사용자 게시글, 댓글 삭제 로직 추가
+
         accountService.deleteAccount(account);
         SecurityContextHolder.clearContext();
 
