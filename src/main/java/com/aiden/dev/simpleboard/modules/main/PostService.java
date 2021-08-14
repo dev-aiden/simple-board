@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -30,5 +31,9 @@ public class PostService {
         post.setHits(0L);
         post.setPostType(writePostForm.isSecret() ? PostType.PRIVATE : PostType.PUBLIC);
         postRepository.save(post);
+    }
+
+    public Optional<Post> getPostDetail(Long postId) {
+        return postRepository.findById(postId);
     }
 }

@@ -8,11 +8,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/post")
@@ -39,5 +41,12 @@ public class PostController {
         attributes.addFlashAttribute("alertType", "alert-info");
         attributes.addFlashAttribute("message", "게시글이 작성되었습니다.");
         return "redirect:/";
+    }
+
+    @GetMapping("/detail/{postId}")
+    public String detailPostForm(@PathVariable Long postId, Account account, Model model) {
+        model.addAttribute(account);
+        model.addAttribute(postService.getPostDetail(postId).orElseThrow(() -> new IllegalArgumentException(postId + "에 해당하는 게시글이 존재하지 않습니다.")));
+        return "post/detail";
     }
 }

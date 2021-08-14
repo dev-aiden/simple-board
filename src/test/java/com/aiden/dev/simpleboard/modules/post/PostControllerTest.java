@@ -1,5 +1,6 @@
 package com.aiden.dev.simpleboard.modules.post;
 
+import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.WithAccount;
 import com.aiden.dev.simpleboard.modules.main.PostService;
@@ -12,6 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.sql.DataSource;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -85,5 +89,34 @@ class PostControllerTest {
                 .andExpect(flash().attributeExists("message"));
 
         verify(postService, times(1)).writeNewPost(any(), any());
+    }
+
+    @DisplayName("게시글 상세 페이지 보이는지 테스트 - 존재하지 않는 게시글")
+    @Test
+    void detailPostForm_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/detail/2"))).hasCause(new IllegalArgumentException("2에 해당하는 게시글이 존재하지 않습니다."));
+    }
+
+    @DisplayName("게시글 상세 페이지 보이는지 테스트 - 존재하는 게시글")
+    @Test
+    void detailPostForm_exist_post() throws Exception {
+        Account account = Account.builder()
+                .loginId("test")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
+
+        Post post = Post.builder()
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+
+        when(postService.getPostDetail(any())).thenReturn(Optional.of(post));
+
+        mockMvc.perform(get("/post/detail/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("post/detail"));
     }
 }

@@ -1,6 +1,7 @@
 package com.aiden.dev.simpleboard.modules.post;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
+import com.aiden.dev.simpleboard.modules.account.UserAccount;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -37,4 +38,7 @@ public class Post {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    public boolean isWriter(UserAccount userAccount) {
+        return this.getAccount().getLoginId().equals(userAccount.getUsername());
+    }
 }
