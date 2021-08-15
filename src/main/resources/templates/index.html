@@ -29,7 +29,7 @@
         <tbody>
         <tr th:each="post, iStat : ${posts}">
           <td th:text="${iStat.index + 1}"></td>
-          <td th:text="${post.getTitle()}"></td>
+          <td><a class="text-decoration-none text-black" th:href="@{'/post/detail/' + ${post.id}}"><span th:text="${post.getTitle()}"></span></a></td>
           <td th:text="${post.getAccount().getNickname()}"></td>
           <td th:text="${#temporals.format(post.getCreatedAt(), 'yyyy-MM-dd HH:mm')}"></td>
           <td th:text="${post.getHits()}"></td>
@@ -71,7 +71,7 @@
       <input type="submit" class="btn btn-secondary" value="검색">
     </div>
     <div class="col-auto ps-1">
-      <input type="button" class="btn btn-dark" value="글쓰기" th:onclick="|location.href='@{/post/write}'|">
+      <a th:href="@{/post/write}" class="btn btn-dark">글쓰기</a>
     </div>
   </form>
 
