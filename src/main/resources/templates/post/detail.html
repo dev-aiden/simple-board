@@ -28,7 +28,7 @@
       <div class="form-group">
       <a class="btn btn-dark" th:href="@{/}" role="button">목록으로</a>
       <span sec:authorize="isAuthenticated()" th:if="${post.isWriter(#authentication.principal)}">
-        <button class="btn btn-success btn-block">수정하기</button>
+        <a class="btn btn-success" th:href="@{'/post/update/' + ${post.id}}" role="button">수정하기</a>
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePostModal">삭제하기</button>
         <!-- Modal -->
           <div class="modal fade" id="deletePostModal" tabindex="-1" aria-labelledby="deletePostModalLabel" aria-hidden="true">

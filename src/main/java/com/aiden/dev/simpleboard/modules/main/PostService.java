@@ -40,4 +40,11 @@ public class PostService {
     public void deletePost(Long postId) {
         postRepository.deleteById(postId);
     }
+
+    public void updatePost(Long postId, WritePostForm writePostForm) {
+        Post post = postRepository.findById(postId).get();
+        post.setTitle(writePostForm.getTitle());
+        post.setPostType(writePostForm.isSecret() ? PostType.PRIVATE : PostType.PUBLIC);
+        post.setContents(writePostForm.getContents());
+    }
 }

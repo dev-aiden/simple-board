@@ -4,6 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.CurrentAccount;
 import com.aiden.dev.simpleboard.modules.main.PostService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/post")
@@ -18,6 +20,7 @@ import javax.validation.Valid;
 public class PostController {
 
     private final PostService postService;
+    private final ModelMapper modelMapper;
 
     @GetMapping("/write")
     public String writePostForm(@CurrentAccount Account account, Model model) {
@@ -54,5 +57,32 @@ public class PostController {
     public String deletePost(@PathVariable Long postId, @CurrentAccount Account account, RedirectAttributes attributes) {
         postService.deletePost(postId);
         return "redirect:/";
+    }
+
+    @GetMapping("/update/{postId}")
+    public String updatePostForm(@PathVariable Long postId, @CurrentAccount Account account, Model model) {
+        Post post = postService.getPostDetail(postId).orElseThrow(() -> new IllegalArgumentException(postId + "에 해당하는 게시글이 존재하지 않습니다."));
+        if(!Objects.equals(post.getAccount().getId(), account.getId())) {
+            throw new IllegalArgumentException("잘못된 접근입니다.");
+        }
+
+        WritePostForm writePostForm = modelMapper.map(post, WritePostForm.class);
+        writePostForm.setSecret(post.getPostType() == PostType.PRIVATE);
+
+        model.addAttribute(account);
+        model.addAttribute(writePostForm);
+        model.addAttribute(post);
+        return "post/update";
+    }
+
+    @PutMapping("/update/{postId}")
+    public String updatePost(@PathVariable Long postId, @CurrentAccount Account account, @Valid WritePostForm writePostForm, Errors errors) {
+        if(errors.hasErrors()) {
+            // TODO attribute에 에러 메시지 전달
+            return "redirect:/post/detail/" + postId;
+        }
+        postService.updatePost(postId, writePostForm);
+
+        return "redirect:/post/detail/" + postId;
     }
 }
