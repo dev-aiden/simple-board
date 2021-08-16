@@ -19,8 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -48,9 +47,8 @@ class PostControllerTest {
         mockMvc.perform(get("/post/write"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(view().name("post/write"))
-                .andExpect(model().attributeExists("account"))
-                .andExpect(model().attributeExists("writePostForm"));
+                .andExpect(view().name("account/check-email"))
+                .andExpect(model().attributeExists("email"));
     }
 
     @DisplayName("게시글 작성 처리 - 로그인 이전")
@@ -79,12 +77,17 @@ class PostControllerTest {
     @DisplayName("게시글 작성 처리 - 입력값 정상")
     @Test
     void writePost_with_correct_input() throws Exception {
+        Post post = Post.builder()
+                .id(1L)
+                .build();
+        when(postService.writeNewPost(any(), any())).thenReturn(post);
+
         mockMvc.perform(post("/post/write")
                 .param("title", "title")
                 .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"))
+                .andExpect(redirectedUrl("/post/detail/1"))
                 .andExpect(flash().attributeExists("alertType"))
                 .andExpect(flash().attributeExists("message"));
 

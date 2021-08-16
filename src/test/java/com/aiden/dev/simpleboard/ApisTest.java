@@ -375,7 +375,7 @@ class ApisTest {
                 .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"))
+                .andExpect(redirectedUrl("/post/detail/1"))
                 .andExpect(flash().attributeExists("alertType"))
                 .andExpect(flash().attributeExists("message"))
                 .andExpect(authenticated().withUsername("aiden"));

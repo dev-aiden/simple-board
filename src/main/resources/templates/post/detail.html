@@ -29,7 +29,28 @@
       <a class="btn btn-dark" th:href="@{/}" role="button">목록으로</a>
       <span sec:authorize="isAuthenticated()" th:if="${post.isWriter(#authentication.principal)}">
         <button class="btn btn-success btn-block">수정하기</button>
-        <button class="btn btn-danger btn-block">삭제하기</button>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePostModal">삭제하기</button>
+        <!-- Modal -->
+          <div class="modal fade" id="deletePostModal" tabindex="-1" aria-labelledby="deletePostModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteAccountModalLabel">게시글 삭제</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  게시글 삭제 시, 복구가 불가능합니다.<br>
+                  게시글을 삭제하시겠습니까?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
+                  <form th:action="@{'/post/' + ${post.id}}" th:method="delete">
+                    <button type="submit" class="btn btn-dark">삭제</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
       </span>
       </div>
     </div>
