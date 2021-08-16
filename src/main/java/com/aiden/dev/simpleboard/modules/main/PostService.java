@@ -25,12 +25,12 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public void writeNewPost(WritePostForm writePostForm, Account account) {
+    public Post writeNewPost(WritePostForm writePostForm, Account account) {
         Post post = modelMapper.map(writePostForm, Post.class);
         post.setAccount(account);
         post.setHits(0L);
         post.setPostType(writePostForm.isSecret() ? PostType.PRIVATE : PostType.PUBLIC);
-        postRepository.save(post);
+        return postRepository.save(post);
     }
 
     public Optional<Post> getPostDetail(Long postId) {

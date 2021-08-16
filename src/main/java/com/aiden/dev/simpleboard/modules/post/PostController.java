@@ -25,6 +25,10 @@ public class PostController {
 
     @GetMapping("/write")
     public String writePostForm(@CurrentAccount Account account, Model model) {
+        if(!account.isEmailVerified()) {
+            model.addAttribute("email", account.getEmail());
+            return "account/check-email";
+        }
         model.addAttribute(account);
         model.addAttribute(new WritePostForm());
         return "post/write";
@@ -36,11 +40,11 @@ public class PostController {
             return "post/write";
         }
 
-        postService.writeNewPost(writePostForm, account);
+        Post post = postService.writeNewPost(writePostForm, account);
 
         attributes.addFlashAttribute("alertType", "alert-info");
         attributes.addFlashAttribute("message", "게시글이 작성되었습니다.");
-        return "redirect:/";
+        return "redirect:/post/detail/" + post.getId();
     }
 
     @GetMapping("/detail/{postId}")
