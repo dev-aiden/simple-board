@@ -4,28 +4,32 @@ import com.aiden.dev.simpleboard.infra.mail.EmailService;
 import com.aiden.dev.simpleboard.modules.account.form.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
-@Transactional
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
 
-    @Autowired AccountService accountService;
-    @Autowired PasswordEncoder passwordEncoder;
-    @MockBean EmailService emailService;
+    @InjectMocks AccountService accountService;
+    @Mock EmailService emailService;
+    @Mock AccountRepository accountRepository;
+    @Spy PasswordEncoder passwordEncoder;
+    @Spy ModelMapper modelMapper;
 
     @DisplayName("계정 생성 후 메일 발송되는지 테스트")
     @Test
@@ -37,16 +41,24 @@ class AccountServiceTest {
         signUpForm.setNickname("test");
         signUpForm.setEmail("test@email.com");
 
+        Account account = Account.builder()
+                .loginId("test")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
+
+        given(passwordEncoder.encode(any())).willReturn("encryptTest");
+        given(accountRepository.save(any())).willReturn(account);
+
         // When
-        Account account = accountService.processNewAccount(signUpForm);
+        Account savedAccount = accountService.processNewAccount(signUpForm);
 
         // Then
-        assertThat(account.getLoginId()).isEqualTo(signUpForm.getLoginId());
-        assertThat(account.getPassword()).isEqualTo(signUpForm.getPassword());
-        assertThat(account.getPassword()).isNotEqualTo("testtest");
-        assertThat(account.getNickname()).isEqualTo(signUpForm.getNickname());
-        assertThat(account.getEmail()).isEqualTo(signUpForm.getEmail());
-        assertThat(account.getEmailCheckToken()).isNotNull();
+        assertThat(savedAccount.getLoginId()).isEqualTo(signUpForm.getLoginId());
+        assertThat(savedAccount.getPassword()).isNotEqualTo(signUpForm.getPassword());
+        assertThat(savedAccount.getPassword()).isNotEqualTo("testtest");
+        assertThat(savedAccount.getNickname()).isEqualTo(signUpForm.getNickname());
+        assertThat(savedAccount.getEmail()).isEqualTo(signUpForm.getEmail());
         then(emailService).should().sendEmail(any());
     }
 
@@ -63,25 +75,25 @@ class AccountServiceTest {
         accountService.sendSignUpConfirmEmail(account);
 
         // Then
-        verify(emailService, atLeast(1)).sendEmail(any());
+        then(emailService).should().sendEmail(any());
     }
 
     @DisplayName("로그인 테스트")
     @Test
     void login() {
         // Given
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setLoginId("test");
-        signUpForm.setPassword("testtest");
-        signUpForm.setNickname("test");
-        signUpForm.setEmail("test@email.com");
-        Account account = accountService.processNewAccount(signUpForm);
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
 
         // When
         accountService.login(account);
-        UserAccount authenticationAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         // Then
+        UserAccount authenticationAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         assertThat(authenticationAccount.getUsername()).isEqualTo("test");
     }
 
@@ -98,12 +110,14 @@ class AccountServiceTest {
     @Test
     void loadUserByUsername_exist_login_id() {
         // Given
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setLoginId("test");
-        signUpForm.setPassword("testtest");
-        signUpForm.setNickname("test");
-        signUpForm.setEmail("test@email.com");
-        accountService.processNewAccount(signUpForm);
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
+
+        given(accountRepository.findByLoginId(any())).willReturn(account);
 
         // When
         UserDetails userDetails = accountService.loadUserByUsername("test");
@@ -116,12 +130,12 @@ class AccountServiceTest {
     @Test
     void completeSignUp() {
         // Given
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setLoginId("test");
-        signUpForm.setPassword("testtest");
-        signUpForm.setNickname("test");
-        signUpForm.setEmail("test@email.com");
-        Account account = accountService.processNewAccount(signUpForm);
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
 
         // When
         accountService.completeSignUp(account);
@@ -138,12 +152,12 @@ class AccountServiceTest {
     @Test
     void updateProfile() {
         // Given
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setLoginId("test");
-        signUpForm.setPassword("testtest");
-        signUpForm.setNickname("test");
-        signUpForm.setEmail("test@email.com");
-        Account account = accountService.processNewAccount(signUpForm);
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
 
         ProfileForm profileForm = new ProfileForm();
         profileForm.setNickname("test2");
@@ -159,13 +173,12 @@ class AccountServiceTest {
     @Test
     void updatePassword() {
         // Given
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setLoginId("test");
-        signUpForm.setPassword("testtest");
-        signUpForm.setNickname("test");
-        signUpForm.setEmail("test@email.com");
-        Account account = accountService.processNewAccount(signUpForm);
-        String originPassword = account.getPassword();
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
 
         PasswordForm passwordForm = new PasswordForm();
         passwordForm.setNewPassword("aaaaaaaa");
@@ -174,70 +187,71 @@ class AccountServiceTest {
         accountService.updatePassword(account, passwordForm.getNewPassword());
 
         // Then
-        assertThat(account.getPassword()).isNotEqualTo(originPassword);
+        assertThat(account.getPassword()).isNotEqualTo("testtest");
     }
 
     @DisplayName("알림 변경 테스트")
     @Test
     void updateNotification() {
         // Given
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setLoginId("test");
-        signUpForm.setPassword("testtest");
-        signUpForm.setNickname("test");
-        signUpForm.setEmail("test@email.com");
-        Account account = accountService.processNewAccount(signUpForm);
-        boolean originNotification = account.isCommentNotification();
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .nickname("test")
+                .email("test@email.com")
+                .commentNotification(true)
+                .build();
 
         NotificationForm notificationForm = new NotificationForm();
-        notificationForm.setCommentNotification(!originNotification);
+        notificationForm.setCommentNotification(false);
 
         // When
         accountService.updateNotification(account, notificationForm);
 
         // Then
-        assertThat(account.isCommentNotification()).isNotEqualTo(originNotification);
+        assertThat(account.isCommentNotification()).isEqualTo(false);
     }
 
     @DisplayName("계정 삭제 테스트")
     @Test
     void deleteAccount() {
         // Given
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setLoginId("test");
-        signUpForm.setPassword("testtest");
-        signUpForm.setNickname("test");
-        signUpForm.setEmail("test@email.com");
-        Account account = accountService.processNewAccount(signUpForm);
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
 
         // When
         accountService.deleteAccount(account);
 
         // Then
-        assertThrows(UsernameNotFoundException.class, () -> accountService.loadUserByUsername("test"));
+        then(accountRepository).should().delete(account);
     }
 
     @DisplayName("비밀번호 찾기 메일 발송 테스트")
     @Test
     void issueTemporaryPassword() {
         // Given
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setLoginId("test");
-        signUpForm.setPassword("testtest");
-        signUpForm.setNickname("test");
-        signUpForm.setEmail("test@email.com");
-        Account account = accountService.processNewAccount(signUpForm);
-        String originPassword = account.getPassword();
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
 
         FindPasswordForm findPasswordForm = new FindPasswordForm();
         findPasswordForm.setLoginId("test");
         findPasswordForm.setEmail("test@email.com");
 
+        given(accountRepository.findByLoginId(any())).willReturn(account);
+
         // When
         accountService.issueTemporaryPassword(findPasswordForm);
 
         // Then
-        assertThat(account.getPassword()).isNotEqualTo(originPassword);
-        verify(emailService, atLeast(1)).sendEmail(any());
+        assertThat(account.getPassword()).isNotEqualTo("testtest");
+        then(emailService).should().sendEmail(any());
     }
 }

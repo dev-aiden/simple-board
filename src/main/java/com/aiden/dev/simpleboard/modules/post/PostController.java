@@ -46,7 +46,7 @@ public class PostController {
         return "redirect:/post/detail/" + post.getId();
     }
 
-    @GetMapping("/detail/{postId}")
+    @GetMapping("/{postId}")
     public String detailPostForm(@PathVariable Long postId, Account account, Model model) {
         model.addAttribute(account);
         model.addAttribute(postService.getPostDetail(postId).orElseThrow(() -> new IllegalArgumentException(postId + "에 해당하는 게시글이 존재하지 않습니다.")));

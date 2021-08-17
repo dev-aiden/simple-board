@@ -6,6 +6,7 @@ import com.aiden.dev.simpleboard.modules.account.WithAccount;
 import com.aiden.dev.simpleboard.modules.main.PostService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,6 +31,7 @@ class PostControllerTest {
     @MockBean AccountService accountService;
     @MockBean DataSource dataSource;
     @MockBean PostService postService;
+    @MockBean ModelMapper modelMapper;
 
     @DisplayName("게시글 작성 페이지 보이는지 테스트 - 로그인 이전")
     @Test
@@ -97,7 +99,7 @@ class PostControllerTest {
     @DisplayName("게시글 상세 페이지 보이는지 테스트 - 존재하지 않는 게시글")
     @Test
     void detailPostForm_not_exist_post() throws Exception {
-        assertThatThrownBy(() -> mockMvc.perform(get("/post/detail/2"))).hasCause(new IllegalArgumentException("2에 해당하는 게시글이 존재하지 않습니다."));
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/2"))).hasCause(new IllegalArgumentException("2에 해당하는 게시글이 존재하지 않습니다."));
     }
 
     @DisplayName("게시글 상세 페이지 보이는지 테스트 - 존재하는 게시글")
@@ -117,7 +119,7 @@ class PostControllerTest {
 
         when(postService.getPostDetail(any())).thenReturn(Optional.of(post));
 
-        mockMvc.perform(get("/post/detail/1"))
+        mockMvc.perform(get("/post/1"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("post/detail"));

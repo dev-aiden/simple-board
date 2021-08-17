@@ -26,6 +26,7 @@ class AccountControllerTest {
     @Autowired MockMvc mockMvc;
     @MockBean SignUpFormValidator signUpFormValidator;
     @MockBean FindPasswordFormValidator findPasswordFormValidator;
+    @MockBean Account account;
     @MockBean AccountService accountService;
     @MockBean AccountRepository accountRepository;
     @MockBean DataSource dataSource;
@@ -137,6 +138,8 @@ class AccountControllerTest {
     @DisplayName("인증 메일 재발송 확인 - 1시간 이내 재발송")
     @Test
     void resendConfirmEmail_before_1_hour() throws Exception {
+        when(account.canSendConfirmEmail()).thenReturn(false);
+
         mockMvc.perform(get("/resend-confirm-email"))
                 .andDo(print())
                 .andExpect(status().isOk())

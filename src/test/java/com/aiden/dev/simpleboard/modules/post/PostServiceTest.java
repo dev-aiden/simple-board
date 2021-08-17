@@ -1,7 +1,8 @@
-package com.aiden.dev.simpleboard.modules.main;
+package com.aiden.dev.simpleboard.modules.post;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountRepository;
+import com.aiden.dev.simpleboard.modules.main.PostService;
 import com.aiden.dev.simpleboard.modules.post.Post;
 import com.aiden.dev.simpleboard.modules.post.PostRepository;
 import com.aiden.dev.simpleboard.modules.post.PostType;
@@ -18,7 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 class PostServiceTest {
 
-    @Autowired PostService postService;
+    @Autowired
+    PostService postService;
     @Autowired PostRepository postRepository;
     @Autowired AccountRepository accountRepository;
 
