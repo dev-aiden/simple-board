@@ -6,6 +6,10 @@ import com.aiden.dev.simpleboard.modules.account.WithAccount;
 import com.aiden.dev.simpleboard.modules.main.PostService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,6 +22,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -43,14 +48,26 @@ class PostControllerTest {
     }
 
     @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 작성 페이지 보이는지 테스트 - 이메일 인증 전")
+    @Test
+    void writePostForm_before_email_verify() throws Exception {
+        mockMvc.perform(get("/post/write"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/check-email"))
+                .andExpect(model().attributeExists("email"));
+    }
+
+    @WithAccount(loginId = "aiden", isEmailVerified = true)
     @DisplayName("게시글 작성 페이지 보이는지 테스트 - 로그인 이후")
     @Test
     void writePostForm_after_login() throws Exception {
         mockMvc.perform(get("/post/write"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(view().name("account/check-email"))
-                .andExpect(model().attributeExists("email"));
+                .andExpect(view().name("post/write"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("writePostForm"));
     }
 
     @DisplayName("게시글 작성 처리 - 로그인 이전")
@@ -89,7 +106,7 @@ class PostControllerTest {
                 .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/post/detail/1"))
+                .andExpect(redirectedUrl("/post/1"))
                 .andExpect(flash().attributeExists("alertType"))
                 .andExpect(flash().attributeExists("message"));
 
@@ -123,5 +140,111 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("post/detail"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 삭제 테스트 - 존재하지 않는 게시글")
+    @Test
+    void deletePost_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(delete("/post/1").with(csrf())))
+                .hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 삭제 테스트 - 다른 사용자 게시글")
+    @Test
+    void deletePost_other_user_post() throws Exception {
+        Account account = Account.builder()
+                .loginId("test")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .account(account)
+                .build();
+
+        given(postService.getPostDetail(1L)).willReturn(Optional.of(post));
+
+        assertThatThrownBy(() -> mockMvc.perform(delete("/post/1").with(csrf())))
+                .hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 삭제 테스트")
+    @Test
+    void deletePost() throws Exception {
+        Account account = Account.builder()
+                .loginId("aiden")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .account(account)
+                .build();
+
+        given(postService.getPostDetail(1L)).willReturn(Optional.of(post));
+
+        mockMvc.perform(delete("/post/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("alertType"))
+                .andExpect(flash().attributeExists("message"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 수정 페이지 보이는지 테스트 - 존재하지 않는 게시글")
+    @Test
+    void updatePost_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/update/1")))
+                .hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 수정 페이지 보이는지 테스트 - 다른 사용자 게시글")
+    @Test
+    void updatePost_other_user_post() throws Exception {
+        Account account = Account.builder()
+                .loginId("test")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .account(account)
+                .build();
+
+        given(postService.getPostDetail(1L)).willReturn(Optional.of(post));
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/update/1")))
+                .hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 수정 페이지 보이는지 테스트")
+    @Test
+    void updatePost() throws Exception {
+        Account account = Account.builder()
+                .loginId("aiden")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .postType(PostType.PUBLIC)
+                .account(account)
+                .build();
+
+        given(postService.getPostDetail(1L)).willReturn(Optional.of(post));
+        given(modelMapper.map(any(), any())).willReturn(new WritePostForm());
+
+        mockMvc.perform(get("/post/update/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("post/update"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("writePostForm"))
+                .andExpect(model().attributeExists("post"));
     }
 }

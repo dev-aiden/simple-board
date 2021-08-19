@@ -1,28 +1,39 @@
 package com.aiden.dev.simpleboard.modules.post;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
-import com.aiden.dev.simpleboard.modules.account.AccountRepository;
 import com.aiden.dev.simpleboard.modules.main.PostService;
-import com.aiden.dev.simpleboard.modules.post.Post;
-import com.aiden.dev.simpleboard.modules.post.PostRepository;
-import com.aiden.dev.simpleboard.modules.post.PostType;
-import com.aiden.dev.simpleboard.modules.post.WritePostForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Optional;
 
-@Transactional
-@SpringBootTest
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
 class PostServiceTest {
 
-    @Autowired
-    PostService postService;
-    @Autowired PostRepository postRepository;
-    @Autowired AccountRepository accountRepository;
+    @InjectMocks PostService postService;
+    @Mock PostRepository postRepository;
+    @Spy ModelMapper modelMapper;
+
+    @DisplayName("모든 게시글 조회 테스트")
+    @Test
+    void getAllPost() {
+        // When
+        postService.getAllPost();
+
+        // Then
+        verify(postRepository).findAll();
+    }
 
     @DisplayName("게시글 작성 테스트")
     @Test
@@ -40,17 +51,47 @@ class PostServiceTest {
                 .email("test@email.com")
                 .build();
         account.generateEmailCheckToken();
-        accountRepository.save(account);
 
         // When
         postService.writeNewPost(writePostForm, account);
 
         // Then
-        Post post = postRepository.findByTitle("title");
-        assertThat(post).isNotNull();
-        assertThat(post.getTitle()).isEqualTo("title");
-        assertThat(post.getPostType()).isEqualTo(PostType.PUBLIC);
-        assertThat(post.getContents()).isEqualTo("contents");
-        assertThat(post.getAccount()).isEqualTo(account);
+        verify(postRepository).save(any(Post.class));
+    }
+
+    @DisplayName("게시글 살세 정보 조회 테스트")
+    @Test
+    void getPostDetail() {
+        // When
+        postService.getPostDetail(1L);
+
+        // Then
+        verify(postRepository).findById(anyLong());
+    }
+
+    @DisplayName("게시글 삭제 테스트")
+    @Test
+    void deletePost() {
+        // When
+        postService.deletePost(1L);
+
+        // Then
+        verify(postRepository).deleteById(anyLong());
+    }
+
+    @DisplayName("게시글 수정 테스트")
+    @Test
+    void updatePost() {
+        // Given
+        Post post = Post.builder()
+                .title("title")
+                .build();
+        given(postRepository.findById(any())).willReturn(Optional.of(post));
+
+        // When
+        postService.updatePost(1L, new WritePostForm());
+
+        // Then
+        verify(postRepository).findById(anyLong());
     }
 }

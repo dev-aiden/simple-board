@@ -43,7 +43,7 @@ public class PostController {
 
         attributes.addFlashAttribute("alertType", "alert-info");
         attributes.addFlashAttribute("message", "게시글이 작성되었습니다.");
-        return "redirect:/post/detail/" + post.getId();
+        return "redirect:/post/" + post.getId();
     }
 
     @GetMapping("/{postId}")
@@ -55,19 +55,31 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public String deletePost(@PathVariable Long postId, @CurrentAccount Account account, RedirectAttributes attributes) {
+        Post post = postService.getPostDetail(postId).orElseThrow(() -> new IllegalArgumentException(postId + "에 해당하는 게시글이 존재하지 않습니다."));
+        if(!Objects.equals(post.getAccount().getLoginId(), account.getLoginId())) {
+            throw new IllegalArgumentException("잘못된 접근입니다.");
+        }
+
         postService.deletePost(postId);
+
+        attributes.addFlashAttribute("alertType", "alert-danger");
+        attributes.addFlashAttribute("message", "게시글이 삭제되었습니다.");
         return "redirect:/";
     }
 
     @GetMapping("/update/{postId}")
     public String updatePostForm(@PathVariable Long postId, @CurrentAccount Account account, Model model) {
         Post post = postService.getPostDetail(postId).orElseThrow(() -> new IllegalArgumentException(postId + "에 해당하는 게시글이 존재하지 않습니다."));
-        if(!Objects.equals(post.getAccount().getId(), account.getId())) {
+        if(!Objects.equals(post.getAccount().getLoginId(), account.getLoginId())) {
             throw new IllegalArgumentException("잘못된 접근입니다.");
         }
 
+        System.out.println("test : 0");
+        System.out.println("test : 0 -> " + post.getPostType());
         WritePostForm writePostForm = modelMapper.map(post, WritePostForm.class);
         writePostForm.setSecret(post.getPostType() == PostType.PRIVATE);
+
+        System.out.println("test : 1");
 
         model.addAttribute(account);
         model.addAttribute(writePostForm);
@@ -79,10 +91,10 @@ public class PostController {
     public String updatePost(@PathVariable Long postId, @CurrentAccount Account account, @Valid WritePostForm writePostForm, Errors errors) {
         if(errors.hasErrors()) {
             // TODO attribute에 에러 메시지 전달
-            return "redirect:/post/detail/" + postId;
+            return "redirect:/post/" + postId;
         }
         postService.updatePost(postId, writePostForm);
 
-        return "redirect:/post/detail/" + postId;
+        return "redirect:/post/" + postId;
     }
 }

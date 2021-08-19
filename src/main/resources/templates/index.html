@@ -29,7 +29,7 @@
         <tbody>
         <tr th:each="post, iStat : ${posts}">
           <td th:text="${iStat.index + 1}"></td>
-          <td><a class="text-decoration-none text-black" th:href="@{'/post/detail/' + ${post.id}}"><span th:text="${post.getTitle()}"></span></a></td>
+          <td><a class="text-decoration-none text-black" th:href="@{'/post/' + ${post.id}}"><span th:text="${post.getTitle()}"></span></a></td>
           <td th:text="${post.getAccount().getNickname()}"></td>
           <td th:text="${#temporals.format(post.getCreatedAt(), 'yyyy-MM-dd HH:mm')}"></td>
           <td th:text="${post.getHits()}"></td>

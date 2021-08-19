@@ -13,5 +13,7 @@ public @interface WithAccount {
 
     String role() default "ROLE_USER";
 
+    boolean isEmailVerified() default false;
+
     long minusHoursForEmailCheckToken() default 0L;
 }

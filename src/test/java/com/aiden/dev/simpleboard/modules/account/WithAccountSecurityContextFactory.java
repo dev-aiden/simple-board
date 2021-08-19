@@ -19,6 +19,7 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
                 .nickname(withAccount.loginId())
                 .email(withAccount.loginId() + "@email.com")
                 .emailCheckTokenGeneratedAt(LocalDateTime.now().minusHours(withAccount.minusHoursForEmailCheckToken()))
+                .emailVerified(withAccount.isEmailVerified())
                 .build();
 
         UsernamePasswordAuthenticationToken token= new UsernamePasswordAuthenticationToken(new UserAccount(account), account.getPassword(), List.of(new SimpleGrantedAuthority(withAccount.role())));
