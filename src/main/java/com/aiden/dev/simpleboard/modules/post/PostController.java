@@ -74,12 +74,8 @@ public class PostController {
             throw new IllegalArgumentException("잘못된 접근입니다.");
         }
 
-        System.out.println("test : 0");
-        System.out.println("test : 0 -> " + post.getPostType());
         WritePostForm writePostForm = modelMapper.map(post, WritePostForm.class);
         writePostForm.setSecret(post.getPostType() == PostType.PRIVATE);
-
-        System.out.println("test : 1");
 
         model.addAttribute(account);
         model.addAttribute(writePostForm);
@@ -89,10 +85,15 @@ public class PostController {
 
     @PutMapping("/update/{postId}")
     public String updatePost(@PathVariable Long postId, @CurrentAccount Account account, @Valid WritePostForm writePostForm, Errors errors) {
+        Post post = postService.getPostDetail(postId).orElseThrow(() -> new IllegalArgumentException(postId + "에 해당하는 게시글이 존재하지 않습니다."));
+        if(!Objects.equals(post.getAccount().getLoginId(), account.getLoginId())) {
+            throw new IllegalArgumentException("잘못된 접근입니다.");
+        }
+
         if(errors.hasErrors()) {
-            // TODO attribute에 에러 메시지 전달
             return "redirect:/post/" + postId;
         }
+
         postService.updatePost(postId, writePostForm);
 
         return "redirect:/post/" + postId;

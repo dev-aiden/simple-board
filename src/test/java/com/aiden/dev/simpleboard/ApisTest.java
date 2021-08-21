@@ -4,6 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountRepository;
 import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
+import com.aiden.dev.simpleboard.modules.post.Post;
 import com.aiden.dev.simpleboard.modules.post.PostRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -291,7 +293,7 @@ class ApisTest {
         boolean originNotification = aiden.isCommentNotification();
 
         mockMvc.perform(post("/settings/notification")
-                .param("commentNoticiation", String.valueOf(!originNotification))
+                .param("commentNotification", String.valueOf(!originNotification))
                 .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
@@ -375,11 +377,231 @@ class ApisTest {
                 .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/post/1"))
                 .andExpect(flash().attributeExists("alertType"))
                 .andExpect(flash().attributeExists("message"))
                 .andExpect(authenticated().withUsername("aiden"));
 
         assertThat(postRepository.findByTitle("title")).isNotNull();
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("존재하지 않는 게시글로 게시글 상세정보 조회 시 실패")
+    @Test
+    void detailPostForm_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/1")
+                        .with(csrf()))).hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("존재하는 게시글로 게시글 상세정보 조회 시 성공")
+    @Test
+    void detailPostForm_exist_post() throws Exception {
+        Account aiden = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(aiden)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        mockMvc.perform(get("/post/" + savedPost.getId())
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("post/detail"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("post"))
+                .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("존재하지 않는 게시글 삭제 시 실패")
+    @Test
+    void deletePost_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(delete("/post/1")
+                .with(csrf()))).hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("다른 사용자 게시글 삭제 시 실패")
+    @Test
+    void deletePost_other_user_post() throws Exception {
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        signUpForm.setPassword("testtest");
+        Account account = accountService.processNewAccount(signUpForm);
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        assertThatThrownBy(() -> mockMvc.perform(delete("/post/" + savedPost.getId())
+                .with(csrf()))).hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("게시글 삭제 성공")
+    @Test
+    void deletePost() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        postRepository.save(post);
+
+        mockMvc.perform(delete("/post/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("alertType"))
+                .andExpect(flash().attributeExists("message"))
+                .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("존재하지 않는 게시글로 수정 페이지 조회 시 실패")
+    @Test
+    void updatePostForm_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/update/1")
+                .with(csrf()))).hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("다른 사용자 게시글로 수정 페이지 조회 시 실패")
+    @Test
+    void updatePostForm_exist_post() throws Exception {
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        signUpForm.setPassword("testtest");
+        Account account = accountService.processNewAccount(signUpForm);
+
+        Post post = Post.builder()
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/update/" + savedPost.getId())
+                .with(csrf()))).hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("게시글 수정 페이지 조회 성공")
+    @Test
+    void updatePostForm() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        mockMvc.perform(get("/post/update/" + savedPost.getId())
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("post/update"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("writePostForm"))
+                .andExpect(model().attributeExists("post"))
+                .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("존재하지 않는 게시글 수정 시도 시 실패")
+    @Test
+    void updatePost_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(put("/post/update/1")
+                .with(csrf()))).hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("다른 사용자 게시글 수정 시도 시 실패")
+    @Test
+    void updatePost_exist_post() throws Exception {
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        signUpForm.setPassword("testtest");
+        Account account = accountService.processNewAccount(signUpForm);
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        assertThatThrownBy(() -> mockMvc.perform(put("/post/update/" + savedPost.getId())
+                .with(csrf()))).hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("Form 에러 시 게시글 수정 실패")
+    @Test
+    void updatePost_form_error() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        mockMvc.perform(put("/post/update/" + savedPost.getId())
+                        .param("title", "")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/" + savedPost.getId()))
+                .andExpect(authenticated().withUsername("aiden"));
+
+        assertThat(postRepository.findById(savedPost.getId()).get().getTitle()).isEqualTo("title");
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("게시글 수정 성공")
+    @Test
+    void updatePost() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        mockMvc.perform(put("/post/update/" + savedPost.getId())
+                        .param("title", "title2")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/" + savedPost.getId()))
+                .andExpect(authenticated().withUsername("aiden"));
+
+        assertThat(postRepository.findById(savedPost.getId()).get().getTitle()).isEqualTo("title2");
     }
 }

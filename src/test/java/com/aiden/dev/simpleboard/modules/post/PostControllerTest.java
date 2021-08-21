@@ -6,10 +6,6 @@ import com.aiden.dev.simpleboard.modules.account.WithAccount;
 import com.aiden.dev.simpleboard.modules.main.PostService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,7 +13,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.sql.DataSource;
-
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -196,7 +191,7 @@ class PostControllerTest {
     @WithAccount(loginId = "aiden")
     @DisplayName("게시글 수정 페이지 보이는지 테스트 - 존재하지 않는 게시글")
     @Test
-    void updatePost_not_exist_post() throws Exception {
+    void updatePostForm_not_exist_post() throws Exception {
         assertThatThrownBy(() -> mockMvc.perform(get("/post/update/1")))
                 .hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
     }
@@ -204,7 +199,7 @@ class PostControllerTest {
     @WithAccount(loginId = "aiden")
     @DisplayName("게시글 수정 페이지 보이는지 테스트 - 다른 사용자 게시글")
     @Test
-    void updatePost_other_user_post() throws Exception {
+    void updatePostForm_other_user_post() throws Exception {
         Account account = Account.builder()
                 .loginId("test")
                 .build();
@@ -223,7 +218,7 @@ class PostControllerTest {
     @WithAccount(loginId = "aiden")
     @DisplayName("게시글 수정 페이지 보이는지 테스트")
     @Test
-    void updatePost() throws Exception {
+    void updatePostForm() throws Exception {
         Account account = Account.builder()
                 .loginId("aiden")
                 .build();
@@ -246,5 +241,58 @@ class PostControllerTest {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("writePostForm"))
                 .andExpect(model().attributeExists("post"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 수정 테스트 - 존재하지 않는 게시글")
+    @Test
+    void updatePost_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(put("/post/update/1").with(csrf())))
+                .hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 수정 테스트 - 다른 사용자 게시글")
+    @Test
+    void updatePost_other_user_post() throws Exception {
+        Account account = Account.builder()
+                .loginId("test")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .account(account)
+                .build();
+
+        given(postService.getPostDetail(1L)).willReturn(Optional.of(post));
+
+        assertThatThrownBy(() -> mockMvc.perform(put("/post/update/1").with(csrf())))
+                .hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 수정 테스트")
+    @Test
+    void updatePost() throws Exception {
+        Account account = Account.builder()
+                .loginId("aiden")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .account(account)
+                .build();
+
+        given(postService.getPostDetail(1L)).willReturn(Optional.of(post));
+
+        mockMvc.perform(put("/post/update/1")
+                        .param("title", "title")
+                        .param("contents", "contents")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/1"));
+
+        verify(postService, times(1)).updatePost(any(), any());
     }
 }
