@@ -47,9 +47,13 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public String detailPostForm(@PathVariable Long postId, Account account, Model model) {
-        model.addAttribute(account);
-        model.addAttribute(postService.getPostDetail(postId).orElseThrow(() -> new IllegalArgumentException(postId + "에 해당하는 게시글이 존재하지 않습니다.")));
+    public String detailPostForm(@PathVariable Long postId, @CurrentAccount Account account, Model model) {
+        Post post = postService.getPostDetail(postId).orElseThrow(() -> new IllegalArgumentException(postId + "에 해당하는 게시글이 존재하지 않습니다."));
+        if(!post.isAuthenticated(account)) {
+            throw new IllegalArgumentException("게시글 접근 권한이 없습니다.");
+        }
+        model.addAttribute("account", account);
+        model.addAttribute(post);
         return "post/detail";
     }
 

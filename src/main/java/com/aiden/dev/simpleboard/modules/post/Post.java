@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -40,5 +41,12 @@ public class Post {
 
     public boolean isWriter(UserAccount userAccount) {
         return this.getAccount().getLoginId().equals(userAccount.getUsername());
+    }
+
+    public boolean isAuthenticated(Account account) {
+        if(this.postType == PostType.PRIVATE) {
+            return account != null && Objects.equals(this.account.getLoginId(), account.getLoginId());
+        }
+        return true;
     }
 }

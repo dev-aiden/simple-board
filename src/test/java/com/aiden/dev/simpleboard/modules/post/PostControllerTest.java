@@ -134,7 +134,79 @@ class PostControllerTest {
         mockMvc.perform(get("/post/1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(view().name("post/detail"));
+                .andExpect(view().name("post/detail"))
+                .andExpect(model().attributeExists("post"));
+    }
+
+    @DisplayName("비공개 게시글 상세 페이지 보이는지 테스트 - 비회원")
+    @Test
+    void detailPostForm_secret_post_no_member() throws Exception {
+        Account account = Account.builder()
+                .loginId("test")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .postType(PostType.PRIVATE)
+                .contents("contents")
+                .account(account)
+                .build();
+
+        when(postService.getPostDetail(any())).thenReturn(Optional.of(post));
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/1"))).hasCause(new IllegalArgumentException("게시글 접근 권한이 없습니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("비공개 게시글 상세 페이지 보이는지 테스트 - 다른 사용자 게시글")
+    @Test
+    void detailPostForm_secret_post_other_user() throws Exception {
+        Account account = Account.builder()
+                .loginId("test")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .postType(PostType.PRIVATE)
+                .contents("contents")
+                .account(account)
+                .build();
+
+        when(postService.getPostDetail(any())).thenReturn(Optional.of(post));
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/1"))).hasCause(new IllegalArgumentException("게시글 접근 권한이 없습니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("비공개 게시글 상세 페이지 보이는지 테스트 - 다른 사용자 게시글")
+    @Test
+    void detailPostForm_secret_post() throws Exception {
+        Account account = Account.builder()
+                .loginId("aiden")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .postType(PostType.PRIVATE)
+                .contents("contents")
+                .account(account)
+                .build();
+
+        when(postService.getPostDetail(any())).thenReturn(Optional.of(post));
+
+        mockMvc.perform(get("/post/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("post/detail"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("post"));
     }
 
     @WithAccount(loginId = "aiden")

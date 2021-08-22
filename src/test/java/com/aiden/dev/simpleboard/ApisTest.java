@@ -6,6 +6,7 @@ import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
 import com.aiden.dev.simpleboard.modules.post.Post;
 import com.aiden.dev.simpleboard.modules.post.PostRepository;
+import com.aiden.dev.simpleboard.modules.post.PostType;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -399,8 +400,71 @@ class ApisTest {
         Account aiden = accountRepository.findByLoginId("aiden");
 
         Post post = Post.builder()
-                .id(1L)
                 .title("title")
+                .contents("contents")
+                .account(aiden)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        mockMvc.perform(get("/post/" + savedPost.getId())
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("post/detail"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("post"))
+                .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @DisplayName("비회원이 비공개 게시글 상세정보 조회 시 실패")
+    @Test
+    void detailPostForm_secret_post_no_member() throws Exception {
+        Account aiden = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .title("title")
+                .postType(PostType.PRIVATE)
+                .contents("contents")
+                .account(aiden)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/" + savedPost.getId())
+                .with(csrf()))).hasCause(new IllegalArgumentException("게시글 접근 권한이 없습니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("다른 사용자의 비공개 게시글 상세정보 조회 시 실패")
+    @Test
+    void detailPostForm_secret_post_other_user() throws Exception {
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        signUpForm.setPassword("testtest");
+        Account account = accountService.processNewAccount(signUpForm);
+
+        Post post = Post.builder()
+                .title("title")
+                .postType(PostType.PRIVATE)
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/" + savedPost.getId())
+                .with(csrf()))).hasCause(new IllegalArgumentException("게시글 접근 권한이 없습니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("본인의 비공개 게시글 상세정보 조회 시 성공")
+    @Test
+    void detailPostForm_secret_post() throws Exception {
+        Account aiden = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .title("title")
+                .postType(PostType.PRIVATE)
                 .contents("contents")
                 .account(aiden)
                 .build();

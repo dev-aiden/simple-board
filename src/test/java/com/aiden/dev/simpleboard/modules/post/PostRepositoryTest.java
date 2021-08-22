@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,6 +31,7 @@ class PostRepositoryTest {
         accountRepository.save(account);
 
         Post post = Post.builder()
+                .id(1L)
                 .title("post test")
                 .account(account)
                 .build();
@@ -48,5 +50,12 @@ class PostRepositoryTest {
     void findByTitle() {
         Post post = postRepository.findByTitle("post test");
         assertThat(post).isNotNull();
+    }
+
+    @DisplayName("ID로 게시글 조회 쿼리 테스트")
+    @Test
+    void findById() {
+        Optional<Post> posts = postRepository.findById(1L);
+        assertThat(posts).isNotNull();
     }
 }
