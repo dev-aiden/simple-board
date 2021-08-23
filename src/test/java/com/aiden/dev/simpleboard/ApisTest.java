@@ -4,6 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountRepository;
 import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
+import com.aiden.dev.simpleboard.modules.comment.CommentRepository;
 import com.aiden.dev.simpleboard.modules.post.Post;
 import com.aiden.dev.simpleboard.modules.post.PostRepository;
 import com.aiden.dev.simpleboard.modules.post.PostType;
@@ -39,6 +40,7 @@ class ApisTest {
     @Autowired AccountRepository accountRepository;
     @Autowired AccountService accountService;
     @Autowired PostRepository postRepository;
+    @Autowired CommentRepository commentRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -413,6 +415,7 @@ class ApisTest {
                 .andExpect(view().name("post/detail"))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("post"))
+                .andExpect(model().attributeExists("writeCommentForm"))
                 .andExpect(authenticated().withUsername("aiden"));
     }
 
@@ -477,6 +480,7 @@ class ApisTest {
                 .andExpect(view().name("post/detail"))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("post"))
+                .andExpect(model().attributeExists("writeCommentForm"))
                 .andExpect(authenticated().withUsername("aiden"));
     }
 
@@ -667,5 +671,45 @@ class ApisTest {
                 .andExpect(authenticated().withUsername("aiden"));
 
         assertThat(postRepository.findById(savedPost.getId()).get().getTitle()).isEqualTo("title2");
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("잘못된 입력값으로 댓글 작성 시 댓글 작성 실패")
+    @Test
+    void writeComment_wrong_input() throws Exception {
+        mockMvc.perform(post("/comment/write")
+                        .param("postId", "1")
+                        .param("contents", "")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/1"))
+                .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("올바른 입력값으로 게시글 작성 시 게시글 작성 성공")
+    @Test
+    void writeComment_correct_input() throws Exception {
+        Account aiden = accountRepository.findByLoginId("aiden");
+        aiden.setEmailVerified(true);
+
+        Post post = Post.builder()
+                .title("title")
+                .contents("contents")
+                .account(aiden)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        mockMvc.perform(post("/comment/write")
+                        .param("postId", String.valueOf(post.getId()))
+                        .param("contents", "contents")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/" + savedPost.getId()))
+                .andExpect(authenticated().withUsername("aiden"));
+
+        assertThat(commentRepository.findAll().size()).isEqualTo(1);
     }
 }

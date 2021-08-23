@@ -1,4 +1,4 @@
-package com.aiden.dev.simpleboard.modules.post;
+package com.aiden.dev.simpleboard.modules.post.form;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;

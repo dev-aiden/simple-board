@@ -2,6 +2,7 @@ package com.aiden.dev.simpleboard.modules.post;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.main.PostService;
+import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

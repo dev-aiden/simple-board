@@ -2,7 +2,9 @@ package com.aiden.dev.simpleboard.modules.post;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.CurrentAccount;
+import com.aiden.dev.simpleboard.modules.comment.form.WriteCommentForm;
 import com.aiden.dev.simpleboard.modules.main.PostService;
+import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
@@ -54,6 +56,7 @@ public class PostController {
         }
         model.addAttribute("account", account);
         model.addAttribute(post);
+        model.addAttribute(new WriteCommentForm());
         return "post/detail";
     }
 

@@ -4,6 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.WithAccount;
 import com.aiden.dev.simpleboard.modules.main.PostService;
+import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -135,7 +136,8 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("post/detail"))
-                .andExpect(model().attributeExists("post"));
+                .andExpect(model().attributeExists("post"))
+                .andExpect(model().attributeExists("writeCommentForm"));
     }
 
     @DisplayName("비공개 게시글 상세 페이지 보이는지 테스트 - 비회원")
@@ -206,7 +208,8 @@ class PostControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("post/detail"))
                 .andExpect(model().attributeExists("account"))
-                .andExpect(model().attributeExists("post"));
+                .andExpect(model().attributeExists("post"))
+                .andExpect(model().attributeExists("writeCommentForm"));
     }
 
     @WithAccount(loginId = "aiden")

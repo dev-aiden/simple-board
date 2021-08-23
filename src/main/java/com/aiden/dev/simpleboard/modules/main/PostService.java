@@ -4,7 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.post.Post;
 import com.aiden.dev.simpleboard.modules.post.PostRepository;
 import com.aiden.dev.simpleboard.modules.post.PostType;
-import com.aiden.dev.simpleboard.modules.post.WritePostForm;
+import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

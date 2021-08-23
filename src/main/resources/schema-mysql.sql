@@ -42,3 +42,16 @@ create table post (
     primary key (id),
     foreign key (account_id) references account (id)
 ) engine=InnoDB;
+
+drop table if exists comment;
+create table comment (
+    id bigint not null auto_increment,
+    contents longtext,
+    created_at datetime(6),
+    updated_at datetime(6),
+    account_id bigint not null,
+    post_id bigint not null,
+    primary key (id),
+    foreign key (account_id) references account (id),
+    foreign key (post_id_id) references post (id)
+) engine=InnoDB;
