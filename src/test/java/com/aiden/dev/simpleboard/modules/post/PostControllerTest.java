@@ -3,6 +3,7 @@ package com.aiden.dev.simpleboard.modules.post;
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.WithAccount;
+import com.aiden.dev.simpleboard.modules.comment.CommentService;
 import com.aiden.dev.simpleboard.modules.main.PostService;
 import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,7 @@ class PostControllerTest {
     @MockBean AccountService accountService;
     @MockBean DataSource dataSource;
     @MockBean PostService postService;
+    @MockBean CommentService commentService;
     @MockBean ModelMapper modelMapper;
 
     @DisplayName("게시글 작성 페이지 보이는지 테스트 - 로그인 이전")
@@ -137,7 +139,8 @@ class PostControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("post/detail"))
                 .andExpect(model().attributeExists("post"))
-                .andExpect(model().attributeExists("writeCommentForm"));
+                .andExpect(model().attributeExists("writeCommentForm"))
+                .andExpect(model().attributeExists("comments"));
     }
 
     @DisplayName("비공개 게시글 상세 페이지 보이는지 테스트 - 비회원")
@@ -209,7 +212,8 @@ class PostControllerTest {
                 .andExpect(view().name("post/detail"))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("post"))
-                .andExpect(model().attributeExists("writeCommentForm"));
+                .andExpect(model().attributeExists("writeCommentForm"))
+                .andExpect(model().attributeExists("comments"));
     }
 
     @WithAccount(loginId = "aiden")

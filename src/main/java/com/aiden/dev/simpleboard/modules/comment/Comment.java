@@ -2,7 +2,6 @@ package com.aiden.dev.simpleboard.modules.comment;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.post.Post;
-import com.aiden.dev.simpleboard.modules.post.PostType;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;

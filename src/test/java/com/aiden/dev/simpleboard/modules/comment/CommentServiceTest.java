@@ -4,7 +4,6 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.comment.form.WriteCommentForm;
 import com.aiden.dev.simpleboard.modules.main.PostService;
 import com.aiden.dev.simpleboard.modules.post.Post;
-import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,5 +72,15 @@ class CommentServiceTest {
 
         // Then
         verify(commentRepository).save(any(Comment.class));
+    }
+
+    @DisplayName("postId로 댓글 조회 테스트")
+    @Test
+    void getComments() {
+        // When
+        commentService.getComments(1L);
+
+        // Then
+        verify(commentRepository).findByPostId(1L);
     }
 }

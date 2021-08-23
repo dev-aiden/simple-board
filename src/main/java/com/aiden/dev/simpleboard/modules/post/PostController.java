@@ -2,6 +2,7 @@ package com.aiden.dev.simpleboard.modules.post;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.CurrentAccount;
+import com.aiden.dev.simpleboard.modules.comment.CommentService;
 import com.aiden.dev.simpleboard.modules.comment.form.WriteCommentForm;
 import com.aiden.dev.simpleboard.modules.main.PostService;
 import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
@@ -22,6 +23,7 @@ import java.util.Objects;
 public class PostController {
 
     private final PostService postService;
+    private final CommentService commentService;
     private final ModelMapper modelMapper;
 
     @GetMapping("/write")
@@ -57,6 +59,7 @@ public class PostController {
         model.addAttribute("account", account);
         model.addAttribute(post);
         model.addAttribute(new WriteCommentForm());
+        model.addAttribute("comments", commentService.getComments(post.getId()));
         return "post/detail";
     }
 

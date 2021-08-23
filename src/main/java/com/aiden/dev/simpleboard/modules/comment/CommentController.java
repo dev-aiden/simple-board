@@ -3,13 +3,11 @@ package com.aiden.dev.simpleboard.modules.comment;
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.CurrentAccount;
 import com.aiden.dev.simpleboard.modules.comment.form.WriteCommentForm;
-import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 

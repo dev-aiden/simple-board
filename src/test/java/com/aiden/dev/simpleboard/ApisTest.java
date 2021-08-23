@@ -416,6 +416,7 @@ class ApisTest {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("post"))
                 .andExpect(model().attributeExists("writeCommentForm"))
+                .andExpect(model().attributeExists("comments"))
                 .andExpect(authenticated().withUsername("aiden"));
     }
 
@@ -481,6 +482,7 @@ class ApisTest {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("post"))
                 .andExpect(model().attributeExists("writeCommentForm"))
+                .andExpect(model().attributeExists("comments"))
                 .andExpect(authenticated().withUsername("aiden"));
     }
 
