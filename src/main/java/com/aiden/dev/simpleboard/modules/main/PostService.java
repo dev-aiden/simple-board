@@ -47,4 +47,8 @@ public class PostService {
         post.setPostType(writePostForm.isSecret() ? PostType.PRIVATE : PostType.PUBLIC);
         post.setContents(writePostForm.getContents());
     }
+
+    public void increaseHits(Post post) {
+        post.setHits(post.getHits() + 1);
+    }
 }

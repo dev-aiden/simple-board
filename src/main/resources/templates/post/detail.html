@@ -108,7 +108,7 @@
               <span th:if="${comment.isWriter(#authentication.principal)}">
                 <textarea class="form-control" style="height: 100px" th:text="${comment.contents}" readonly></textarea>
               </span>
-              <span th:unless="${post.isWriter(#authentication.principal)}">
+              <span th:unless="${comment.isWriter(#authentication.principal)}">
                 <textarea class="form-control" style="height: 100px" readonly>비공개 댓글입니다.</textarea>
               </span>
             </span>

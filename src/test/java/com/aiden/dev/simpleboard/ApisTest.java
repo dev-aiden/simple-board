@@ -405,6 +405,7 @@ class ApisTest {
                 .title("title")
                 .contents("contents")
                 .account(aiden)
+                .hits(0L)
                 .build();
         Post savedPost = postRepository.save(post);
 
@@ -471,6 +472,7 @@ class ApisTest {
                 .postType(PostType.PRIVATE)
                 .contents("contents")
                 .account(aiden)
+                .hits(0L)
                 .build();
         Post savedPost = postRepository.save(post);
 

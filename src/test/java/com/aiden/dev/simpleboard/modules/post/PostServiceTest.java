@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -94,5 +95,21 @@ class PostServiceTest {
 
         // Then
         verify(postRepository).findById(anyLong());
+    }
+
+    @DisplayName("조회수 증가 테스트")
+    @Test
+    void increaseHits() {
+        // Given
+        Post post = Post.builder()
+                .title("title")
+                .hits(0L)
+                .build();
+
+        // When
+        postService.increaseHits(post);
+
+        // Then
+        assertThat(post.getHits()).isEqualTo(1);
     }
 }

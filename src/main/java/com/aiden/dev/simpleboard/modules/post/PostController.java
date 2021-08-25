@@ -56,6 +56,9 @@ public class PostController {
         if(!post.isAuthenticated(account)) {
             throw new IllegalArgumentException("게시글 접근 권한이 없습니다.");
         }
+
+        postService.increaseHits(post);
+
         model.addAttribute("account", account);
         model.addAttribute(post);
         model.addAttribute(new WriteCommentForm());
