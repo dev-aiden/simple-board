@@ -4,6 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.WithAccount;
 import com.aiden.dev.simpleboard.modules.comment.form.WriteCommentForm;
+import com.aiden.dev.simpleboard.modules.post.Post;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,16 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.sql.DataSource;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CommentController.class)
@@ -72,5 +78,64 @@ class CommentControllerTest {
                 .andExpect(redirectedUrl("/post/1"));
 
         verify(commentService).writeNewComment(any(WriteCommentForm.class), any(Account.class));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("댓글 삭제 테스트 - 존재하지 않는 댓글")
+    @Test
+    void deleteComment_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(delete("/comment/1").with(csrf())))
+                .hasCause(new IllegalArgumentException("1에 해당하는 댓글이 존재하지 않습니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("댓글 삭제 테스트 - 다른 사용자 댓글")
+    @Test
+    void deleteComment_other_user_post() throws Exception {
+        Account account = Account.builder()
+                .loginId("test")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .account(account)
+                .build();
+
+        Comment comment = Comment.builder()
+                .post(post)
+                .account(account)
+                .build();
+
+        given(commentService.getComment(1L)).willReturn(Optional.of(comment));
+
+        assertThatThrownBy(() -> mockMvc.perform(delete("/comment/1").with(csrf())))
+                .hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("게시글 삭제 테스트")
+    @Test
+    void deletePost() throws Exception {
+        Account account = Account.builder()
+                .loginId("aiden")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .account(account)
+                .build();
+
+        Comment comment = Comment.builder()
+                .post(post)
+                .account(account)
+                .build();
+
+        given(commentService.getComment(1L)).willReturn(Optional.of(comment));
+
+        mockMvc.perform(delete("/comment/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/1"));
     }
 }

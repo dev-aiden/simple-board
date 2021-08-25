@@ -74,7 +74,7 @@ class CommentServiceTest {
         verify(commentRepository).save(any(Comment.class));
     }
 
-    @DisplayName("postId로 댓글 조회 테스트")
+    @DisplayName("postId로 댓글 리스트 조회 테스트")
     @Test
     void getComments() {
         // When
@@ -82,5 +82,25 @@ class CommentServiceTest {
 
         // Then
         verify(commentRepository).findByPostId(1L);
+    }
+
+    @DisplayName("commentId로 댓글 조회 테스트")
+    @Test
+    void getComment() {
+        // When
+        commentService.getComment(1L);
+
+        // Then
+        verify(commentRepository).findById(1L);
+    }
+
+    @DisplayName("댓글 삭제 테스트")
+    @Test
+    void deleteComment() {
+        // When
+        commentService.deleteComment(new Comment());
+
+        // Then
+        verify(commentRepository).delete(any(Comment.class));
     }
 }

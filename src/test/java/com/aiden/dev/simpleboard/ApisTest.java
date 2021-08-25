@@ -4,7 +4,9 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountRepository;
 import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
+import com.aiden.dev.simpleboard.modules.comment.Comment;
 import com.aiden.dev.simpleboard.modules.comment.CommentRepository;
+import com.aiden.dev.simpleboard.modules.comment.CommentType;
 import com.aiden.dev.simpleboard.modules.post.Post;
 import com.aiden.dev.simpleboard.modules.post.PostRepository;
 import com.aiden.dev.simpleboard.modules.post.PostType;
@@ -531,9 +533,9 @@ class ApisTest {
                 .contents("contents")
                 .account(account)
                 .build();
-        postRepository.save(post);
+        Post savedPost = postRepository.save(post);
 
-        mockMvc.perform(delete("/post/1")
+        mockMvc.perform(delete("/post/" + savedPost.getId())
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
@@ -715,5 +717,74 @@ class ApisTest {
                 .andExpect(authenticated().withUsername("aiden"));
 
         assertThat(commentRepository.findAll().size()).isEqualTo(1);
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("존재하지 않는 댓글 삭제 시 실패")
+    @Test
+    void deleteComment_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(delete("/comment/1")
+                .with(csrf()))).hasCause(new IllegalArgumentException("1에 해당하는 댓글이 존재하지 않습니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("다른 사용자 댓글 삭제 시 실패")
+    @Test
+    void deleteComment_other_user_post() throws Exception {
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        signUpForm.setPassword("testtest");
+        Account account = accountService.processNewAccount(signUpForm);
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        Comment comment = Comment.builder()
+                .account(account)
+                .post(savedPost)
+                .commentType(CommentType.PUBLIC)
+                .contents("contents")
+                .build();
+        Comment savedComment = commentRepository.save(comment);
+
+        assertThatThrownBy(() -> mockMvc.perform(delete("/comment/" + savedComment.getId())
+                .with(csrf()))).hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("댓글 삭제 성공")
+    @Test
+    void deleteComment() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        Comment comment = Comment.builder()
+                .account(account)
+                .post(savedPost)
+                .commentType(CommentType.PUBLIC)
+                .contents("contents")
+                .build();
+        Comment savedComment = commentRepository.save(comment);
+
+        mockMvc.perform(delete("/comment/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/" + savedPost.getId()))
+                .andExpect(authenticated().withUsername("aiden"));
     }
 }

@@ -35,7 +35,7 @@
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="deleteAccountModalLabel">게시글 삭제</h5>
+                  <h5 class="modal-title">게시글 삭제</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -96,13 +96,32 @@
                 <a th:href="@{'/comment/update/' + ${comment.id}}" class="text-decoration-none text-black">
                   <i class="fa fa-pencil" aria-hidden="true"></i>
                 </a>
-                <a th:href="@{'/comment/delete' + ${comment.id}}" class="text-decoration-none text-black">
+                <a href="#" class="text-decoration-none text-black" data-bs-toggle="modal" data-bs-target="#deleteCommentModal">
                   <i class="fa fa-trash-o" aria-hidden="true"></i>
                 </a>
+                <!-- Modal -->
+                <div class="modal fade" id="deleteCommentModal" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">댓글 삭제</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body" style="text-align: left">
+                        댓글을 삭제하시겠습니까?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
+                        <form th:action="@{'/comment/' + ${comment.id}}" th:method="delete">
+                          <button type="submit" class="btn btn-dark">삭제</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </span>
             </label>
           </div>
-
           <span th:if="${comment.commentType == T(com.aiden.dev.simpleboard.modules.comment.CommentType).PRIVATE}">
             <span sec:authorize="isAuthenticated()">
               <span th:if="${comment.isWriter(#authentication.principal)}">
