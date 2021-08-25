@@ -90,17 +90,35 @@
         </span>
         <li class="list-group-item" th:each="comment : ${comments}">
           <div class="row">
-            <label class="col-md-10" th:text="|${comment.account.nickname} (${comment.createdAt})|"></label>
+            <label class="col-md-10" th:text="|${comment.account.nickname} (${#temporals.format(post.getCreatedAt(), 'yyyy-MM-dd HH:mm')})|"></label>
             <label class="col-md-2 ml-auto" style="text-align: right">
-              <a th:href="@{'/comment/update/' + ${comment.id}}" class="text-decoration-none text-black">
-                <i class="fa fa-pencil" aria-hidden="true"></i>
-              </a>
-              <a th:href="@{'/comment/delete' + ${comment.id}}" class="text-decoration-none text-black">
-                <i class="fa fa-trash-o" aria-hidden="true"></i>
-              </a>
+              <span sec:authorize="isAuthenticated()" th:if="${comment.isWriter(#authentication.principal)}">
+                <a th:href="@{'/comment/update/' + ${comment.id}}" class="text-decoration-none text-black">
+                  <i class="fa fa-pencil" aria-hidden="true"></i>
+                </a>
+                <a th:href="@{'/comment/delete' + ${comment.id}}" class="text-decoration-none text-black">
+                  <i class="fa fa-trash-o" aria-hidden="true"></i>
+                </a>
+              </span>
             </label>
           </div>
-          <textarea class="form-control" style="height: 100px" th:text="${comment.contents}" readonly></textarea>
+
+          <span th:if="${comment.commentType == T(com.aiden.dev.simpleboard.modules.comment.CommentType).PRIVATE}">
+            <span sec:authorize="isAuthenticated()">
+              <span th:if="${comment.isWriter(#authentication.principal)}">
+                <textarea class="form-control" style="height: 100px" th:text="${comment.contents}" readonly></textarea>
+              </span>
+              <span th:unless="${post.isWriter(#authentication.principal)}">
+                <textarea class="form-control" style="height: 100px" readonly>비공개 댓글입니다.</textarea>
+              </span>
+            </span>
+            <span sec:authorize="!isAuthenticated()">
+              <textarea class="form-control" style="height: 100px" readonly>비공개 댓글입니다.</textarea>
+            </span>
+          </span>
+          <span th:unless="${comment.commentType == T(com.aiden.dev.simpleboard.modules.comment.CommentType).PRIVATE}">
+            <textarea class="form-control" style="height: 100px" th:text="${comment.contents}" readonly></textarea>
+          </span>
         </li>
       </ul>
     </div>
