@@ -61,7 +61,7 @@ class PostServiceTest {
         verify(postRepository).save(any(Post.class));
     }
 
-    @DisplayName("게시글 살세 정보 조회 테스트")
+    @DisplayName("게시글 상세 정보 조회 테스트")
     @Test
     void getPostDetail() {
         // When

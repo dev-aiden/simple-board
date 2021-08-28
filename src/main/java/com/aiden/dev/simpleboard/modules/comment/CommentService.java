@@ -43,4 +43,10 @@ public class CommentService {
     public void deleteComment(Comment comment) {
         commentRepository.delete(comment);
     }
+
+    public void updateComment(Long commentId, boolean updateSecret, String updateContents) {
+        Comment comment = commentRepository.findById(commentId).get();
+        comment.setCommentType(updateSecret ? CommentType.PRIVATE : CommentType.PUBLIC);
+        comment.setContents(updateContents);
+    }
 }

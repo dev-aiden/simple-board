@@ -93,10 +93,10 @@
             <label class="col-md-10" th:text="|${comment.account.nickname} (${#temporals.format(post.getCreatedAt(), 'yyyy-MM-dd HH:mm')})|"></label>
             <label class="col-md-2 ml-auto" style="text-align: right">
               <span sec:authorize="isAuthenticated()" th:if="${comment.isWriter(#authentication.principal)}">
-                <a th:href="@{'/comment/update/' + ${comment.id}}" class="text-decoration-none text-black">
+                <a class="text-decoration-none text-black" href="javascript:void(0);" th:id="modify" th:onclick="|activateUpdateForm('${comment.id}')|">
                   <i class="fa fa-pencil" aria-hidden="true"></i>
                 </a>
-                <a href="#" class="text-decoration-none text-black" data-bs-toggle="modal" data-bs-target="#deleteCommentModal">
+                <a class="text-decoration-none text-black" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#deleteCommentModal">
                   <i class="fa fa-trash-o" aria-hidden="true"></i>
                 </a>
                 <!-- Modal -->
@@ -122,26 +122,55 @@
               </span>
             </label>
           </div>
-          <span th:if="${comment.commentType == T(com.aiden.dev.simpleboard.modules.comment.CommentType).PRIVATE}">
-            <span sec:authorize="isAuthenticated()">
-              <span th:if="${comment.isWriter(#authentication.principal)}">
-                <textarea class="form-control" style="height: 100px" th:text="${comment.contents}" readonly></textarea>
+          <form th:method="put" th:action="@{'/comment/' + ${comment.id}}">
+            <div class="form-check ms-1" th:id="secretCheckbox + ${comment.id}" style="display: none">
+              <input class="form-check-input" type="checkbox" id="updateSecret" name="updateSecret" th:checked="${comment.commentType == T(com.aiden.dev.simpleboard.modules.comment.CommentType).PRIVATE}">
+              <label class="form-check-label" for="updateSecret">비공개</label>
+            </div>
+
+            <span th:if="${comment.commentType == T(com.aiden.dev.simpleboard.modules.comment.CommentType).PRIVATE}">
+              <span sec:authorize="isAuthenticated()">
+                <span th:if="${comment.isWriter(#authentication.principal)}">
+                  <textarea class="form-control" th:id="comment + ${comment.id}" style="height: 100px" th:text="${comment.contents}" readonly></textarea>
+                </span>
+                <span th:unless="${comment.isWriter(#authentication.principal)}">
+                  <textarea class="form-control" style="height: 100px" readonly>비공개 댓글입니다.</textarea>
+                </span>
               </span>
-              <span th:unless="${comment.isWriter(#authentication.principal)}">
+              <span sec:authorize="!isAuthenticated()">
                 <textarea class="form-control" style="height: 100px" readonly>비공개 댓글입니다.</textarea>
               </span>
             </span>
-            <span sec:authorize="!isAuthenticated()">
-              <textarea class="form-control" style="height: 100px" readonly>비공개 댓글입니다.</textarea>
+            <span th:unless="${comment.commentType == T(com.aiden.dev.simpleboard.modules.comment.CommentType).PRIVATE}">
+              <textarea class="form-control" th:id="comment + ${comment.id}" style="height: 100px" name="updateContents" th:text="${comment.contents}" readonly></textarea>
             </span>
-          </span>
-          <span th:unless="${comment.commentType == T(com.aiden.dev.simpleboard.modules.comment.CommentType).PRIVATE}">
-            <textarea class="form-control" style="height: 100px" th:text="${comment.contents}" readonly></textarea>
-          </span>
+            <div class="my-1" style="text-align: right">
+              <input class="btn btn-success" type="submit" value="수정" th:id="modifyButton + ${comment.id}" style="display: none">
+              <input class="btn btn-secondary" type="button" value="취소" th:id="cancelButton + ${comment.id}" th:onclick="|activateUpdateForm('${comment.id}')|" style="display: none">
+            </div>
+          </form>
         </li>
       </ul>
     </div>
   </div>
+
+  <script type="application/javascript">
+    function activateUpdateForm(commentId) {
+      var con = document.getElementById('modifyButton' + commentId);
+
+      if(con.style.display == 'none') {
+        document.getElementById('comment' + commentId).readOnly = false;
+        document.getElementById('secretCheckbox' + commentId).style.display = 'block';
+        document.getElementById('modifyButton' + commentId).style.display = 'inline';
+        document.getElementById('cancelButton' + commentId).style.display = 'inline';
+      } else {
+        document.getElementById('comment' + commentId).readOnly = true;
+        document.getElementById('secretCheckbox' + commentId).style.display = 'none';
+        document.getElementById('modifyButton' + commentId).style.display = 'none';
+        document.getElementById('cancelButton' + commentId).style.display = 'none';
+      }
+    }
+  </script>
 
   <div th:replace="fragments.html :: footer"></div>
 </div>

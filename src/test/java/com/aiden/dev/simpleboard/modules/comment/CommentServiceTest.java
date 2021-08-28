@@ -4,6 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.comment.form.WriteCommentForm;
 import com.aiden.dev.simpleboard.modules.main.PostService;
 import com.aiden.dev.simpleboard.modules.post.Post;
+import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -102,5 +104,21 @@ class CommentServiceTest {
 
         // Then
         verify(commentRepository).delete(any(Comment.class));
+    }
+
+    @DisplayName("댓글 수정 테스트")
+    @Test
+    void updateComment() {
+        // Given
+        Comment comment = Comment.builder()
+                .contents("contents")
+                .build();
+        given(commentRepository.findById(any())).willReturn(Optional.of(comment));
+
+        // When
+        commentService.updateComment(1L, false, "test");
+
+        // Then
+        verify(commentRepository).findById(anyLong());
     }
 }

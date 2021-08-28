@@ -13,16 +13,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.sql.DataSource;
-
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -113,9 +111,9 @@ class CommentControllerTest {
     }
 
     @WithAccount(loginId = "aiden")
-    @DisplayName("게시글 삭제 테스트")
+    @DisplayName("댓글 삭제 테스트")
     @Test
-    void deletePost() throws Exception {
+    void deleteComment() throws Exception {
         Account account = Account.builder()
                 .loginId("aiden")
                 .build();
@@ -137,5 +135,70 @@ class CommentControllerTest {
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/post/1"));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("댓글 수정 테스트 - 존재하지 않는 댓글")
+    @Test
+    void updateComment_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(put("/comment/1").with(csrf())))
+                .hasCause(new IllegalArgumentException("1에 해당하는 댓글이 존재하지 않습니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("댓글 수정 테스트 - 다른 사용자 댓글")
+    @Test
+    void updateComment_other_user_post() throws Exception {
+        Account account = Account.builder()
+                .loginId("test")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .account(account)
+                .build();
+
+        Comment comment = Comment.builder()
+                .id(1L)
+                .post(post)
+                .account(account)
+                .build();
+
+        given(commentService.getComment(1L)).willReturn(Optional.of(comment));
+
+        assertThatThrownBy(() -> mockMvc.perform(put("/comment/1").with(csrf())))
+                .hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithAccount(loginId = "aiden")
+    @DisplayName("댓글 수정 테스트")
+    @Test
+    void updateComment() throws Exception {
+        Account account = Account.builder()
+                .loginId("aiden")
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .account(account)
+                .build();
+
+        Comment comment = Comment.builder()
+                .id(1L)
+                .post(post)
+                .account(account)
+                .build();
+
+        given(commentService.getComment(1L)).willReturn(Optional.of(comment));
+
+        mockMvc.perform(put("/comment/1")
+                        .param("updateSecret", "true")
+                        .param("updateContents", "contents")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/1"));
+
+        verify(commentService).updateComment(anyLong(), anyBoolean(), anyString());
     }
 }

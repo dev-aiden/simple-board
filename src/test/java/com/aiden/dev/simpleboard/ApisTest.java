@@ -780,11 +780,85 @@ class ApisTest {
                 .build();
         Comment savedComment = commentRepository.save(comment);
 
-        mockMvc.perform(delete("/comment/1")
+        mockMvc.perform(delete("/comment/" + savedComment.getId())
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/post/" + savedPost.getId()))
                 .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("존재하지 않는 댓글 수정 시 실패")
+    @Test
+    void updateComment_not_exist_post() throws Exception {
+        assertThatThrownBy(() -> mockMvc.perform(put("/comment/1")
+                .with(csrf()))).hasCause(new IllegalArgumentException("1에 해당하는 댓글이 존재하지 않습니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("다른 사용자 댓글 수정 시 실패")
+    @Test
+    void updateComment_other_user_post() throws Exception {
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setLoginId("test");
+        signUpForm.setNickname("test");
+        signUpForm.setEmail("test@email.com");
+        signUpForm.setPassword("testtest");
+        Account account = accountService.processNewAccount(signUpForm);
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        Comment comment = Comment.builder()
+                .account(account)
+                .post(savedPost)
+                .commentType(CommentType.PUBLIC)
+                .contents("contents")
+                .build();
+        Comment savedComment = commentRepository.save(comment);
+
+        assertThatThrownBy(() -> mockMvc.perform(put("/comment/" + savedComment.getId())
+                .with(csrf()))).hasCause(new IllegalArgumentException("잘못된 접근입니다."));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("댓글 수정 성공")
+    @Test
+    void updateComment() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        Comment comment = Comment.builder()
+                .account(account)
+                .post(savedPost)
+                .commentType(CommentType.PUBLIC)
+                .contents("contents")
+                .build();
+        Comment savedComment = commentRepository.save(comment);
+
+        mockMvc.perform(put("/comment/" + savedComment.getId())
+                        .param("updateSecret", "true")
+                        .param("updateContents", "updateContents")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/" + savedPost.getId()))
+                .andExpect(authenticated().withUsername("aiden"));
+
+        assertThat(savedComment.getCommentType()).isEqualTo(CommentType.PRIVATE);
+        assertThat(savedComment.getContents()).isEqualTo("updateContents");
     }
 }
