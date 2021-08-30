@@ -7,10 +7,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.sql.DataSource;
 
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -26,6 +34,9 @@ class MainControllerTest {
     @DisplayName("메인 페이지 보이는지 테스트 - Account 미존재")
     @Test
     void home_not_exist_account() throws Exception {
+        given(postService.getPosts(any(), anyString(), anyString()))
+                .willReturn(new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0));
+
         mockMvc.perform(get("/"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -37,6 +48,9 @@ class MainControllerTest {
     @DisplayName("메인 페이지 보이는지 테스트 - Account 존재")
     @Test
     void home_exist_account() throws Exception {
+        given(postService.getPosts(any(), anyString(), anyString()))
+                .willReturn(new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0));
+
         mockMvc.perform(get("/"))
                 .andDo(print())
                 .andExpect(status().isOk())

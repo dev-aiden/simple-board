@@ -11,12 +11,12 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -29,12 +29,32 @@ class PostServiceTest {
 
     @DisplayName("모든 게시글 조회 테스트")
     @Test
-    void getAllPost() {
+    void getPosts() {
         // When
-        postService.getAllPost();
+        postService.getPosts(PageRequest.of(0, 10), "aa", null);
 
         // Then
-        verify(postRepository).findAll();
+        verify(postRepository).findAll(any(PageRequest.class));
+    }
+
+    @DisplayName("제목으로 게시글 조회 테스트")
+    @Test
+    void getPosts_by_title() {
+        // When
+        postService.getPosts(PageRequest.of(0, 10), "title", "test");
+
+        // Then
+        verify(postRepository).findByTitleContains(anyString(), any(PageRequest.class));
+    }
+
+    @DisplayName("작성자로 게시글 조회 테스트")
+    @Test
+    void getPosts_by_writer() {
+        // When
+        postService.getPosts(PageRequest.of(0, 10), "writer", "test");
+
+        // Then
+        verify(postRepository).findByAccount_NicknameContains(anyString(), any(PageRequest.class));
     }
 
     @DisplayName("게시글 작성 테스트")

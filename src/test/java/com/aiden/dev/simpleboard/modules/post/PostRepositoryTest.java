@@ -7,7 +7,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,10 +57,37 @@ class PostRepositoryTest {
         assertThat(post).isNotNull();
     }
 
-    @DisplayName("ID로 게시글 조회 쿼리 테스트")
+    @DisplayName("제목으로 게시글 조회 쿼리 테스트")
     @Test
-    void findById() {
-        Optional<Post> posts = postRepository.findById(1L);
-        assertThat(posts).isNotNull();
+    void findByTitleContains() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Post> posts = postRepository.findByTitleContains("po", pageable);
+
+        assertThat(posts.getNumber()).isEqualTo(0);
+        assertThat(posts.getSize()).isEqualTo(10);
+        assertThat(posts.getTotalPages()).isEqualTo(1);
+        assertThat(posts.getNumberOfElements()).isEqualTo(1);
+        assertThat(posts.getTotalElements()).isEqualTo(1L);
+        assertThat(posts.hasPrevious()).isEqualTo(false);
+        assertThat(posts.isFirst()).isEqualTo(true);
+        assertThat(posts.hasNext()).isEqualTo(false);
+        assertThat(posts.isLast()).isEqualTo(true);
+    }
+
+    @DisplayName("작성자로 게시글 조회 쿼리 테스트")
+    @Test
+    void findByAccount_NicknameContains() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Post> posts = postRepository.findByAccount_NicknameContains("es", pageable);
+
+        assertThat(posts.getNumber()).isEqualTo(0);
+        assertThat(posts.getSize()).isEqualTo(10);
+        assertThat(posts.getTotalPages()).isEqualTo(1);
+        assertThat(posts.getNumberOfElements()).isEqualTo(1);
+        assertThat(posts.getTotalElements()).isEqualTo(1L);
+        assertThat(posts.hasPrevious()).isEqualTo(false);
+        assertThat(posts.isFirst()).isEqualTo(true);
+        assertThat(posts.hasNext()).isEqualTo(false);
+        assertThat(posts.isLast()).isEqualTo(true);
     }
 }
