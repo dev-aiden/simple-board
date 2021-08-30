@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Optional;
 
@@ -31,10 +32,10 @@ class PostServiceTest {
     @Test
     void getAllPost() {
         // When
-        postService.getAllPost();
+        postService.getAllPost(PageRequest.of(0, 10));
 
         // Then
-        verify(postRepository).findAll();
+        verify(postRepository).findAll(any(PageRequest.class));
     }
 
     @DisplayName("게시글 작성 테스트")

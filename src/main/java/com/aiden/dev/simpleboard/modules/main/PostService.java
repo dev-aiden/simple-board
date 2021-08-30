@@ -7,6 +7,9 @@ import com.aiden.dev.simpleboard.modules.post.PostType;
 import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +24,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final ModelMapper modelMapper;
     
-    public List<Post> getAllPost() {
-        return postRepository.findAll();
+    public Page<Post> getAllPost(Pageable pageable) {
+        return postRepository.findAll(pageable);
     }
 
     public Post writeNewPost(WritePostForm writePostForm, Account account) {
