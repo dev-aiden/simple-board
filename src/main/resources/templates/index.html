@@ -42,23 +42,23 @@
     </div>
   </div>
 
-  <div class="row justify-content-center">
-    <div class="col-sm-10">
-      <nav>
-        <ul class="pagination justify-content-center">
-          <li class="page-item" th:classappend="${!posts.hasPrevious()}? disabled">
-            <a class="page-link" th:href="@{/(page=${posts.getNumber()})}">Prev</a>
-          </li>
-          <li class="page-item" th:classappend="${i - 1 == posts.getNumber()}? active" th:each="i: ${#numbers.sequence(1, posts.getTotalPages())}">
-            <a class="page-link" th:href="@{/(page=${i})}" th:text="${i}"></a>
-          </li>
-          <li class="page-item" th:classappend="${!posts.hasNext()}? disabled">
-            <a class="page-link" th:href="@{/(page=${posts.getNumber() + 2})}">Next</a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </div>
+  <nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+      <li class="page-item">
+        <a class="page-link" href="#" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <li class="page-item"><a class="page-link" href="#">1</a></li>
+      <li class="page-item"><a class="page-link" href="#">2</a></li>
+      <li class="page-item"><a class="page-link" href="#">3</a></li>
+      <li class="page-item">
+        <a class="page-link" href="#" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
 
   <form class="nav justify-content-center" th:method="get" th:action="@{/}">
     <div class="col-auto ps-1">
