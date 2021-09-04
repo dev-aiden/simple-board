@@ -80,7 +80,7 @@ class AccountControllerTest {
     @DisplayName("인증 메일 확인 - 존재하지 않는 계정")
     @Test
     void checkEmailToken_with_null_account() throws Exception {
-        when(accountRepository.findByEmail(any())).thenReturn(null);
+        when(accountService.getAccountByEmail(any())).thenReturn(null);
 
         mockMvc.perform(get("/check-email-token")
                 .param("token", "testToken")
@@ -95,8 +95,8 @@ class AccountControllerTest {
     @DisplayName("인증 메일 확인 - 유효하지 않은 토큰")
     @Test
     void checkEmailToken_with_wrong_token() throws Exception {
-        when(accountRepository.findByEmail(any())).thenReturn(mock(Account.class));
-        when(accountRepository.findByEmail(any()).isValidEmailCheckToken(any())).thenReturn(false);
+        when(accountService.getAccountByEmail(any())).thenReturn(mock(Account.class));
+        when(accountService.getAccountByEmail(any()).isValidEmailCheckToken(any())).thenReturn(false);
 
         mockMvc.perform(get("/check-email-token")
                 .param("token", "testToken")
@@ -111,8 +111,8 @@ class AccountControllerTest {
     @DisplayName("인증 메일 확인 - 입력값 정상")
     @Test
     void checkEmailToken_with_correct_input() throws Exception {
-        when(accountRepository.findByEmail(any())).thenReturn(mock(Account.class));
-        when(accountRepository.findByEmail(any()).isValidEmailCheckToken(any())).thenReturn(true);
+        when(accountService.getAccountByEmail(any())).thenReturn(mock(Account.class));
+        when(accountService.getAccountByEmail(any()).isValidEmailCheckToken(any())).thenReturn(true);
 
         mockMvc.perform(get("/check-email-token")
                 .param("token", "testToken")
@@ -186,7 +186,7 @@ class AccountControllerTest {
     @DisplayName("닉네임으로 프로필 페이지 보이는지 확인 - 존재하는 사용자")
     @Test
     void viewProfile_exist_user() throws Exception {
-        when(accountRepository.findByNickname(any())).thenReturn(new Account());
+        when(accountService.getAccountByNickname(any())).thenReturn(new Account());
 
         mockMvc.perform(get("/profile/aiden"))
                 .andDo(print())

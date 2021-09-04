@@ -253,4 +253,40 @@ class AccountServiceTest {
         assertThat(account.getPassword()).isNotEqualTo("testtest");
         then(emailService).should().sendEmail(any());
     }
+
+    @DisplayName("이메일로 계정 조회 테스트")
+    @Test
+    void getAccountByEmail() {
+        // Given
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
+
+        // When
+        accountService.getAccountByEmail("test@email.com");
+
+        // Then
+        then(accountRepository).should().findByEmail("test@email.com");
+    }
+
+    @DisplayName("닉네임으로 계정 조회 테스트")
+    @Test
+    void getAccountByNickname() {
+        // Given
+        Account account = Account.builder()
+                .loginId("test")
+                .password("testtest")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
+
+        // When
+        accountService.getAccountByNickname("test");
+
+        // Then
+        then(accountRepository).should().findByNickname("test");
+    }
 }

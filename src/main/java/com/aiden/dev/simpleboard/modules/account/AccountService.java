@@ -121,4 +121,12 @@ public class AccountService implements UserDetailsService {
                 .build();
         emailService.sendEmail(emailMessage);
     }
+
+    public Account getAccountByEmail(String email) {
+        return accountRepository.findByEmail(email);
+    }
+
+    public Account getAccountByNickname(String nickname) {
+        return accountRepository.findByNickname(nickname);
+    }
 }

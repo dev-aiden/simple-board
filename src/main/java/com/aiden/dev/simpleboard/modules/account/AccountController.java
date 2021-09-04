@@ -24,7 +24,6 @@ public class AccountController {
     private final SignUpFormValidator signUpFormValidator;
     private final FindPasswordFormValidator findPasswordFormValidator;
     private final AccountService accountService;
-    private final AccountRepository accountRepository;
 
     @InitBinder("signUpForm")
     public void signUpFormInitBinder(WebDataBinder webDataBinder) {
@@ -55,7 +54,7 @@ public class AccountController {
 
     @GetMapping("/check-email-token")
     public String checkEmailToken(String token, String email, Model model) {
-        Account account = accountRepository.findByEmail(email);
+        Account account = accountService.getAccountByEmail(email);
 
         if(account == null) {
             model.addAttribute("error", "wrong.email");
@@ -100,7 +99,7 @@ public class AccountController {
 
     @GetMapping("/profile/{nickname}")
     public String viewProfile(@PathVariable String nickname, @CurrentAccount Account account, Model model) {
-        Account byNickname = accountRepository.findByNickname(nickname);
+        Account byNickname = accountService.getAccountByNickname(nickname);
         if(byNickname == null) {
             throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 존재하지 않습니다.");
         }
