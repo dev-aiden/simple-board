@@ -80,7 +80,7 @@ public class PostController {
         return "redirect:/";
     }
 
-    @GetMapping("/update/{postId}")
+    @GetMapping("/{postId}/update")
     public String updatePostForm(@PathVariable Long postId, @CurrentAccount Account account, Model model) {
         Post post = postService.getPostDetail(postId).orElseThrow(() -> new IllegalArgumentException(postId + "에 해당하는 게시글이 존재하지 않습니다."));
         if(!Objects.equals(post.getAccount().getLoginId(), account.getLoginId())) {
@@ -96,7 +96,7 @@ public class PostController {
         return "post/update";
     }
 
-    @PutMapping("/update/{postId}")
+    @PutMapping("/{postId}")
     public String updatePost(@PathVariable Long postId, @CurrentAccount Account account, @Valid WritePostForm writePostForm, Errors errors) {
         Post post = postService.getPostDetail(postId).orElseThrow(() -> new IllegalArgumentException(postId + "에 해당하는 게시글이 존재하지 않습니다."));
         if(!Objects.equals(post.getAccount().getLoginId(), account.getLoginId())) {

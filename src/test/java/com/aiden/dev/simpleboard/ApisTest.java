@@ -549,7 +549,7 @@ class ApisTest {
     @DisplayName("존재하지 않는 게시글로 수정 페이지 조회 시 실패")
     @Test
     void updatePostForm_not_exist_post() throws Exception {
-        assertThatThrownBy(() -> mockMvc.perform(get("/post/update/1")
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/1/update")
                 .with(csrf()))).hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
     }
 
@@ -571,7 +571,7 @@ class ApisTest {
                 .build();
         Post savedPost = postRepository.save(post);
 
-        assertThatThrownBy(() -> mockMvc.perform(get("/post/update/" + savedPost.getId())
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/" + savedPost.getId() + "/update")
                 .with(csrf()))).hasCause(new IllegalArgumentException("잘못된 접근입니다."));
     }
 
@@ -588,7 +588,7 @@ class ApisTest {
                 .build();
         Post savedPost = postRepository.save(post);
 
-        mockMvc.perform(get("/post/update/" + savedPost.getId())
+        mockMvc.perform(get("/post/" + savedPost.getId() + "/update")
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -603,7 +603,7 @@ class ApisTest {
     @DisplayName("존재하지 않는 게시글 수정 시도 시 실패")
     @Test
     void updatePost_not_exist_post() throws Exception {
-        assertThatThrownBy(() -> mockMvc.perform(put("/post/update/1")
+        assertThatThrownBy(() -> mockMvc.perform(put("/post/1")
                 .with(csrf()))).hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
     }
 
@@ -626,7 +626,7 @@ class ApisTest {
                 .build();
         Post savedPost = postRepository.save(post);
 
-        assertThatThrownBy(() -> mockMvc.perform(put("/post/update/" + savedPost.getId())
+        assertThatThrownBy(() -> mockMvc.perform(put("/post/" + savedPost.getId())
                 .with(csrf()))).hasCause(new IllegalArgumentException("잘못된 접근입니다."));
     }
 
@@ -644,7 +644,7 @@ class ApisTest {
                 .build();
         Post savedPost = postRepository.save(post);
 
-        mockMvc.perform(put("/post/update/" + savedPost.getId())
+        mockMvc.perform(put("/post/" + savedPost.getId())
                         .param("title", "")
                         .with(csrf()))
                 .andDo(print())
@@ -668,7 +668,7 @@ class ApisTest {
                 .build();
         Post savedPost = postRepository.save(post);
 
-        mockMvc.perform(put("/post/update/" + savedPost.getId())
+        mockMvc.perform(put("/post/" + savedPost.getId())
                         .param("title", "title2")
                         .with(csrf()))
                 .andDo(print())

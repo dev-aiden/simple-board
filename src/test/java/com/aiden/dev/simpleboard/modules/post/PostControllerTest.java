@@ -271,7 +271,7 @@ class PostControllerTest {
     @DisplayName("게시글 수정 페이지 보이는지 테스트 - 존재하지 않는 게시글")
     @Test
     void updatePostForm_not_exist_post() throws Exception {
-        assertThatThrownBy(() -> mockMvc.perform(get("/post/update/1")))
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/1/update")))
                 .hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
     }
 
@@ -290,7 +290,7 @@ class PostControllerTest {
 
         given(postService.getPostDetail(1L)).willReturn(Optional.of(post));
 
-        assertThatThrownBy(() -> mockMvc.perform(get("/post/update/1")))
+        assertThatThrownBy(() -> mockMvc.perform(get("/post/1/update")))
                 .hasCause(new IllegalArgumentException("잘못된 접근입니다."));
     }
 
@@ -313,7 +313,7 @@ class PostControllerTest {
         given(postService.getPostDetail(1L)).willReturn(Optional.of(post));
         given(modelMapper.map(any(), any())).willReturn(new WritePostForm());
 
-        mockMvc.perform(get("/post/update/1"))
+        mockMvc.perform(get("/post/1/update"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("post/update"))
@@ -326,7 +326,7 @@ class PostControllerTest {
     @DisplayName("게시글 수정 테스트 - 존재하지 않는 게시글")
     @Test
     void updatePost_not_exist_post() throws Exception {
-        assertThatThrownBy(() -> mockMvc.perform(put("/post/update/1").with(csrf())))
+        assertThatThrownBy(() -> mockMvc.perform(put("/post/1").with(csrf())))
                 .hasCause(new IllegalArgumentException("1에 해당하는 게시글이 존재하지 않습니다."));
     }
 
@@ -345,7 +345,7 @@ class PostControllerTest {
 
         given(postService.getPostDetail(1L)).willReturn(Optional.of(post));
 
-        assertThatThrownBy(() -> mockMvc.perform(put("/post/update/1").with(csrf())))
+        assertThatThrownBy(() -> mockMvc.perform(put("/post/1").with(csrf())))
                 .hasCause(new IllegalArgumentException("잘못된 접근입니다."));
     }
 
@@ -364,7 +364,7 @@ class PostControllerTest {
 
         given(postService.getPostDetail(1L)).willReturn(Optional.of(post));
 
-        mockMvc.perform(put("/post/update/1")
+        mockMvc.perform(put("/post/1")
                         .param("title", "title")
                         .param("contents", "contents")
                         .with(csrf()))
