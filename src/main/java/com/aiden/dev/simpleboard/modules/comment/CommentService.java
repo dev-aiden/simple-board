@@ -1,10 +1,12 @@
 package com.aiden.dev.simpleboard.modules.comment;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
+import com.aiden.dev.simpleboard.modules.comment.event.NewCommentEvent;
 import com.aiden.dev.simpleboard.modules.comment.form.WriteCommentForm;
 import com.aiden.dev.simpleboard.modules.main.PostService;
 import com.aiden.dev.simpleboard.modules.post.Post;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostService postService;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     public Comment writeNewComment(WriteCommentForm writeCommentForm, Account account) {
@@ -29,7 +32,9 @@ public class CommentService {
                 .commentType(writeCommentForm.isSecret() ? CommentType.PRIVATE : CommentType.PUBLIC)
                 .account(account)
                 .build();
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
+        eventPublisher.publishEvent(new NewCommentEvent(comment));
+        return comment;
     }
 
     public List<Comment> getComments(Long postId) {
