@@ -38,7 +38,7 @@ public class CommentService {
     }
 
     public List<Comment> getComments(Long postId) {
-        return commentRepository.findByPostId(postId);
+        return commentRepository.findByPostIdOrderByCreatedAtDesc(postId);
     }
 
     public Optional<Comment> getComment(Long commentId) {

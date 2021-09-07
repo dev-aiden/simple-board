@@ -51,6 +51,6 @@ class CommentRepositoryTest {
     @DisplayName("postId로 댓글 조회 쿼리 테스트")
     @Test
     void findByPostId() {
-        assertThat(commentRepository.findByPostId(postId).size()).isEqualTo(1);
+        assertThat(commentRepository.findByPostIdOrderByCreatedAtDesc(postId).size()).isEqualTo(1);
     }
 }

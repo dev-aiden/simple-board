@@ -94,7 +94,7 @@
         </span>
         <li class="list-group-item" th:each="comment : ${comments}">
           <div class="row">
-            <label class="col-md-10" th:text="|${comment.account.nickname} (${#temporals.format(post.getCreatedAt(), 'yyyy-MM-dd HH:mm')})|"></label>
+            <label class="col-md-10" th:text="|${comment.account.nickname} (${#temporals.format(comment.getCreatedAt(), 'yyyy-MM-dd HH:mm')})|"></label>
             <label class="col-md-2 ml-auto" style="text-align: right">
               <span sec:authorize="isAuthenticated()" th:if="${comment.isWriter(#authentication.principal)}">
                 <a class="text-decoration-none text-black" href="javascript:void(0);" th:id="modify" th:onclick="|activateUpdateForm('${comment.id}')|">
