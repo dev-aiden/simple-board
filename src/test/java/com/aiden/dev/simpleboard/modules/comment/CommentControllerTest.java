@@ -4,6 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.WithAccount;
 import com.aiden.dev.simpleboard.modules.comment.form.WriteCommentForm;
+import com.aiden.dev.simpleboard.modules.notification.NotificationRepository;
 import com.aiden.dev.simpleboard.modules.post.Post;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,7 @@ class CommentControllerTest {
     @MockBean AccountService accountService;
     @MockBean DataSource dataSource;
     @MockBean CommentService commentService;
+    @MockBean NotificationRepository notificationRepository;
 
     @DisplayName("댓글 작성 처리 - 로그인 이전")
     @Test

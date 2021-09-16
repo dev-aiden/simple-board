@@ -2,6 +2,7 @@ package com.aiden.dev.simpleboard.modules.account;
 
 import com.aiden.dev.simpleboard.modules.account.validator.FindPasswordFormValidator;
 import com.aiden.dev.simpleboard.modules.account.validator.SignUpFormValidator;
+import com.aiden.dev.simpleboard.modules.notification.NotificationRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ class AccountControllerTest {
     @MockBean Account account;
     @MockBean AccountService accountService;
     @MockBean AccountRepository accountRepository;
+    @MockBean NotificationRepository notificationRepository;
     @MockBean DataSource dataSource;
 
     @DisplayName("회원가입 페이지 보이는지 테스트")

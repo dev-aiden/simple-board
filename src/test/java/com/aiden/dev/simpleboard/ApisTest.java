@@ -7,6 +7,8 @@ import com.aiden.dev.simpleboard.modules.account.form.SignUpForm;
 import com.aiden.dev.simpleboard.modules.comment.Comment;
 import com.aiden.dev.simpleboard.modules.comment.CommentRepository;
 import com.aiden.dev.simpleboard.modules.comment.CommentType;
+import com.aiden.dev.simpleboard.modules.notification.Notification;
+import com.aiden.dev.simpleboard.modules.notification.NotificationRepository;
 import com.aiden.dev.simpleboard.modules.post.Post;
 import com.aiden.dev.simpleboard.modules.post.PostRepository;
 import com.aiden.dev.simpleboard.modules.post.PostType;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,6 +46,7 @@ class ApisTest {
     @Autowired AccountService accountService;
     @Autowired PostRepository postRepository;
     @Autowired CommentRepository commentRepository;
+    @Autowired NotificationRepository notificationRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -860,5 +864,92 @@ class ApisTest {
 
         assertThat(savedComment.getCommentType()).isEqualTo(CommentType.PRIVATE);
         assertThat(savedComment.getContents()).isEqualTo("updateContents");
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("읽지않은 알림 목록 조회")
+    @Test
+    void getNotifications() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        Comment comment = Comment.builder()
+                .account(account)
+                .post(savedPost)
+                .commentType(CommentType.PUBLIC)
+                .contents("contents")
+                .build();
+        commentRepository.save(comment);
+
+        mockMvc.perform(get("/notifications"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("notification/list"))
+                .andExpect(model().attributeExists("isNew"))
+                .andExpect(model().attributeExists("numberOfNotChecked"))
+                .andExpect(model().attributeExists("numberOfChecked"))
+                .andExpect(model().attributeExists("notifications"))
+                .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("읽은 알림 목록 조회")
+    @Test
+    void getOldNotifications() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+
+        Post post = Post.builder()
+                .id(1L)
+                .title("title")
+                .contents("contents")
+                .account(account)
+                .build();
+        Post savedPost = postRepository.save(post);
+
+        Comment comment = Comment.builder()
+                .account(account)
+                .post(savedPost)
+                .commentType(CommentType.PUBLIC)
+                .contents("contents")
+                .build();
+        commentRepository.save(comment);
+
+        mockMvc.perform(get("/notifications/old"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("notification/list"))
+                .andExpect(model().attributeExists("isNew"))
+                .andExpect(model().attributeExists("numberOfNotChecked"))
+                .andExpect(model().attributeExists("numberOfChecked"))
+                .andExpect(model().attributeExists("notifications"))
+                .andExpect(authenticated().withUsername("aiden"));
+    }
+
+    @WithUserDetails(value = "aiden", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("읽은 알림 삭제")
+    @Test
+    void deleteNotifications() throws Exception {
+        Account account = accountRepository.findByLoginId("aiden");
+
+        Notification notification = new Notification();
+        notification.setAccount(account);
+        notification.setChecked(true);
+        notificationRepository.save(notification);
+
+        mockMvc.perform(delete("/notifications")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/notifications"))
+                .andExpect(authenticated().withUsername("aiden"));
+
+        assertThat(notificationRepository.countByAccountAndChecked(account, true)).isEqualTo(0L);
     }
 }

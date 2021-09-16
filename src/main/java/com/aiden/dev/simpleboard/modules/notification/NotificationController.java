@@ -42,7 +42,7 @@ public class NotificationController {
 
     @DeleteMapping("/notifications")
     public String deleteNotifications(@CurrentAccount Account account) {
-        notificationRepository.deleteByAccountAndChecked(account, true);
+        notificationService.deleteNotification(account);
         return "redirect:/notifications";
     }
 }

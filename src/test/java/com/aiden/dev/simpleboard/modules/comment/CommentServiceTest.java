@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
@@ -25,6 +26,7 @@ class CommentServiceTest {
     @InjectMocks CommentService commentService;
     @Mock CommentRepository commentRepository;
     @Mock PostService postService;
+    @Mock ApplicationEventPublisher eventPublisher;
 
     @DisplayName("댓글 작성 테스트 - 존재하지 않는 게시글")
     @Test

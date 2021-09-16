@@ -2,6 +2,7 @@ package com.aiden.dev.simpleboard.modules.main;
 
 import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.WithAccount;
+import com.aiden.dev.simpleboard.modules.notification.NotificationRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ class MainControllerTest {
     @MockBean AccountService accountService;
     @MockBean PostService postService;
     @MockBean DataSource dataSource;
+    @MockBean NotificationRepository notificationRepository;
 
     @DisplayName("메인 페이지 보이는지 테스트 - Account 미존재")
     @Test

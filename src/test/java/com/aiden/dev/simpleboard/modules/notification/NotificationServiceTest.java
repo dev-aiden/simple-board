@@ -42,4 +42,25 @@ class NotificationServiceTest {
         // Then
         verify(notificationRepository).saveAll(any(List.class));
     }
+
+    @DisplayName("알림 삭제 테스트")
+    @Test
+    void deleteNotification() {
+        // Given
+        Account account = Account.builder()
+                .loginId("test")
+                .password("test")
+                .nickname("test")
+                .email("test@email.com")
+                .build();
+        account.generateEmailCheckToken();
+
+        Notification notification = new Notification();
+
+        // When
+        notificationService.deleteNotification(account);
+
+        // Then
+        verify(notificationRepository).deleteByAccountAndChecked(account, true);
+    }
 }

@@ -5,6 +5,7 @@ import com.aiden.dev.simpleboard.modules.account.AccountService;
 import com.aiden.dev.simpleboard.modules.account.WithAccount;
 import com.aiden.dev.simpleboard.modules.comment.CommentService;
 import com.aiden.dev.simpleboard.modules.main.PostService;
+import com.aiden.dev.simpleboard.modules.notification.NotificationRepository;
 import com.aiden.dev.simpleboard.modules.post.form.WritePostForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,7 @@ class PostControllerTest {
     @MockBean PostService postService;
     @MockBean CommentService commentService;
     @MockBean ModelMapper modelMapper;
+    @MockBean NotificationRepository notificationRepository;
 
     @DisplayName("게시글 작성 페이지 보이는지 테스트 - 로그인 이전")
     @Test

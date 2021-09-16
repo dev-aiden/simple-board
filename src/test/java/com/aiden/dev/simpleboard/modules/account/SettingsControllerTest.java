@@ -4,6 +4,7 @@ import com.aiden.dev.simpleboard.modules.account.form.NotificationForm;
 import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import com.aiden.dev.simpleboard.modules.account.validator.PasswordFormValidator;
 import com.aiden.dev.simpleboard.modules.account.validator.ProfileFormValidator;
+import com.aiden.dev.simpleboard.modules.notification.NotificationRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SettingsControllerTest {
 
     @Autowired MockMvc mockMvc;
+    @MockBean NotificationRepository notificationRepository;
     @MockBean PasswordFormValidator passwordFormValidator;
     @MockBean ProfileFormValidator profileFormValidator;
     @MockBean AccountService accountService;
