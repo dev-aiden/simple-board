@@ -1,7 +1,6 @@
 package com.aiden.dev.simpleboard.modules.notification;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
-import com.aiden.dev.simpleboard.modules.post.Post;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

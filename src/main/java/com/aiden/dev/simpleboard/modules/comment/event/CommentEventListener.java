@@ -6,7 +6,6 @@ import com.aiden.dev.simpleboard.modules.notification.Notification;
 import com.aiden.dev.simpleboard.modules.notification.NotificationRepository;
 import com.aiden.dev.simpleboard.modules.post.Post;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;

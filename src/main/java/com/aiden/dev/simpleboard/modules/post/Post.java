@@ -2,12 +2,15 @@ package com.aiden.dev.simpleboard.modules.post;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.UserAccount;
+import com.aiden.dev.simpleboard.modules.comment.Comment;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -29,6 +32,9 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Account account;
+    
+    @OneToMany(mappedBy = "post")
+    private List<Comment> comments = new ArrayList<>();
 
     @Column(columnDefinition = "bigint default 0")
     private Long hits;

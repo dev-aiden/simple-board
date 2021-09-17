@@ -2,8 +2,6 @@ package com.aiden.dev.simpleboard.modules.notification;
 
 import com.aiden.dev.simpleboard.modules.account.Account;
 import com.aiden.dev.simpleboard.modules.account.AccountRepository;
-import com.aiden.dev.simpleboard.modules.post.Post;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
