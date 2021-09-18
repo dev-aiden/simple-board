@@ -47,18 +47,14 @@
 
   <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center">
-      <li class="page-item">
-        <a class="page-link" href="#" aria-label="Previous">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
+      <li class="page-item" th:classappend="${!posts.hasPrevious()}? disabled">
+        <a class="page-link" th:href="@{/(category=${category}, keyword=${keyword}, page=${posts.getNumber()})}">Prev</a>
       </li>
-      <li class="page-item"><a class="page-link" href="#">1</a></li>
-      <li class="page-item"><a class="page-link" href="#">2</a></li>
-      <li class="page-item"><a class="page-link" href="#">3</a></li>
-      <li class="page-item">
-        <a class="page-link" href="#" aria-label="Next">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
+      <li class="page-item" th:classappend="${i == posts.getNumber()}? active" th:each="i: ${#numbers.sequence(0, posts.getTotalPages() - 1)}">
+        <a class="page-link" th:href="@{/(category=${category}, keyword=${keyword}, page=${i + 1})}" th:text="${i + 1}"></a>
+      </li>
+      <li class="page-item" th:classappend="${!posts.hasNext()}? disabled">
+        <a class="page-link" th:href="@{/(category=${category}, keyword=${keyword}, page=${posts.getNumber() + 2})}">Next</a>
       </li>
     </ul>
   </nav>
@@ -66,8 +62,8 @@
   <form class="nav justify-content-center" th:method="get" th:action="@{/}">
     <div class="col-auto ps-1">
       <select class="form-select" name="category" id="category">
-        <option th:value="title">제목</option>
-        <option th:value="writer">작성자</option>
+        <option th:value="title" th:selected>제목</option>
+        <option th:value="writer" th:selected="${category.equalsIgnoreCase('writer')}">작성자</option>
       </select>
     </div>
     <div class="col-auto ps-1">
