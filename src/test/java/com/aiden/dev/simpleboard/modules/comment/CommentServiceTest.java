@@ -122,4 +122,14 @@ class CommentServiceTest {
         // Then
         verify(commentRepository).findById(anyLong());
     }
+
+    @DisplayName("특정 사용자 댓글 삭제 테스트")
+    @Test
+    void deleteComments() {
+        // When
+        commentService.deleteComments(new Account());
+
+        // Then
+        verify(commentRepository).deleteByAccount(any(Account.class));
+    }
 }

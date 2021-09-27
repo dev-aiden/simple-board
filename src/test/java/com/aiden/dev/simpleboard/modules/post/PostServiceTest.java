@@ -132,4 +132,14 @@ class PostServiceTest {
         // Then
         assertThat(post.getHits()).isEqualTo(1);
     }
+
+    @DisplayName("특정 사용자 게시글 삭제 테스트")
+    @Test
+    void deleteComments() {
+        // When
+        postService.deletePosts(new Account());
+
+        // Then
+        verify(postRepository).deleteByAccount(any(Account.class));
+    }
 }

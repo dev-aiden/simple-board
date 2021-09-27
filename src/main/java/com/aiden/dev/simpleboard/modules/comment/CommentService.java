@@ -54,4 +54,8 @@ public class CommentService {
         comment.setCommentType(updateSecret ? CommentType.PRIVATE : CommentType.PUBLIC);
         comment.setContents(updateContents);
     }
+
+    public void deleteComments(Account account) {
+        commentRepository.deleteByAccount(account);
+    }
 }

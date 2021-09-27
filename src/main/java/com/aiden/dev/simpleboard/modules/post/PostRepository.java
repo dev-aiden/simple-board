@@ -1,5 +1,6 @@
 package com.aiden.dev.simpleboard.modules.post;
 
+import com.aiden.dev.simpleboard.modules.account.Account;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -25,4 +26,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @EntityGraph(attributePaths = {"comments"})
     Page<Post> findAll(Pageable pageable);
+
+    void deleteByAccount(Account account);
 }

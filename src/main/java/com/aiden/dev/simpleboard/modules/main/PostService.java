@@ -62,4 +62,8 @@ public class PostService {
     public void increaseHits(Post post) {
         post.setHits(post.getHits() + 1);
     }
+
+    public void deletePosts(Account account) {
+        postRepository.deleteByAccount(account);
+    }
 }

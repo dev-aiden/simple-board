@@ -87,4 +87,15 @@ class PostRepositoryTest {
         assertThat(posts.hasNext()).isEqualTo(false);
         assertThat(posts.isLast()).isEqualTo(true);
     }
+
+    @DisplayName("특정 사용자의 게시글 삭제 쿼리 테스트")
+    @Test
+    void deleteByAccount() {
+        // When
+        Account account = accountRepository.findByLoginId("test");
+        postRepository.deleteByAccount(account);
+
+        // Then
+        assertThat(postRepository.findAll().size()).isEqualTo(0);
+    }
 }

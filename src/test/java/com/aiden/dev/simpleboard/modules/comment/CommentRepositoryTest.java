@@ -53,4 +53,15 @@ class CommentRepositoryTest {
     void findByPostId() {
         assertThat(commentRepository.findByPostIdOrderByCreatedAtDesc(postId).size()).isEqualTo(1);
     }
+
+    @DisplayName("특정 사용자의 댓글 삭제 쿼리 테스트")
+    @Test
+    void deleteByAccount() {
+        // When
+        Account account = accountRepository.findByLoginId("test");
+        commentRepository.deleteByAccount(account);
+
+        // Then
+        assertThat(commentRepository.findAll().size()).isEqualTo(0);
+    }
 }

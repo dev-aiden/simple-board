@@ -5,6 +5,8 @@ import com.aiden.dev.simpleboard.modules.account.form.PasswordForm;
 import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import com.aiden.dev.simpleboard.modules.account.validator.PasswordFormValidator;
 import com.aiden.dev.simpleboard.modules.account.validator.ProfileFormValidator;
+import com.aiden.dev.simpleboard.modules.comment.CommentService;
+import com.aiden.dev.simpleboard.modules.main.PostService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +27,8 @@ public class SettingsController {
     private final PasswordFormValidator passwordFormValidator;
     private final ProfileFormValidator profileFormValidator;
     private final AccountService accountService;
+    private final PostService postService;
+    private final CommentService commentService;
     private final ModelMapper modelMapper;
 
     @InitBinder("passwordForm")
@@ -52,7 +56,6 @@ public class SettingsController {
         }
 
         accountService.updateProfile(account, profileForm);
-        // TODO 해당 사용자 게시글, 댓글 닉네임 변경
         attributes.addFlashAttribute("message",  "프로필이 수정되었습니다.");
         return "redirect:/settings/profile";
     }
@@ -103,8 +106,8 @@ public class SettingsController {
 
     @DeleteMapping("/account")
     public String deleteAccount(@CurrentAccount Account account, RedirectAttributes attributes) {
-        // TODO 해당 사용자 게시글, 댓글 삭제 로직 추가
-
+        commentService.deleteComments(account);
+        postService.deletePosts(account);
         accountService.deleteAccount(account);
         SecurityContextHolder.clearContext();
 

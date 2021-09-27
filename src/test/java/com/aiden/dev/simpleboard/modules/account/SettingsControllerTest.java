@@ -4,6 +4,8 @@ import com.aiden.dev.simpleboard.modules.account.form.NotificationForm;
 import com.aiden.dev.simpleboard.modules.account.form.ProfileForm;
 import com.aiden.dev.simpleboard.modules.account.validator.PasswordFormValidator;
 import com.aiden.dev.simpleboard.modules.account.validator.ProfileFormValidator;
+import com.aiden.dev.simpleboard.modules.comment.CommentService;
+import com.aiden.dev.simpleboard.modules.main.PostService;
 import com.aiden.dev.simpleboard.modules.notification.NotificationRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,8 @@ class SettingsControllerTest {
     @MockBean PasswordFormValidator passwordFormValidator;
     @MockBean ProfileFormValidator profileFormValidator;
     @MockBean AccountService accountService;
+    @MockBean CommentService commentService;
+    @MockBean PostService postService;
     @MockBean DataSource dataSource;
     @MockBean ModelMapper modelMapper;
 
@@ -226,6 +230,8 @@ class SettingsControllerTest {
                 .andExpect(flash().attributeExists("alertType"))
                 .andExpect(flash().attributeExists("message"));
 
+        verify(commentService, times(1)).deleteComments(any());
+        verify(postService, times(1)).deletePosts(any());
         verify(accountService, times(1)).deleteAccount(any());
     }
 }

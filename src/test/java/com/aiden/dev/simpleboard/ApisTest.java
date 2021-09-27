@@ -62,6 +62,19 @@ class ApisTest {
         accountRepository.deleteAll();
     }
 
+    @DisplayName("index 페이지 테스트")
+    @Test
+    void home() throws Exception {
+        mockMvc.perform(get("/"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("posts"))
+                .andExpect(model().attributeExists("category"))
+                .andExpect(model().attributeExists("keyword"))
+                .andExpect(view().name("index"))
+                .andExpect(unauthenticated());
+    }
+
     @DisplayName("잘못된 입력값으로 회원가입 시 회원가입 실패")
     @Test
     void signUp_wrong_input() throws Exception {

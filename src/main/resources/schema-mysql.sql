@@ -55,3 +55,15 @@ create table comment (
     foreign key (account_id) references account (id),
     foreign key (post_id_id) references post (id)
 ) engine=InnoDB;
+
+drop table if exists notification;
+create table notification (
+    id bigint not null auto_increment,
+    checked bit not null,
+    created_at datetime(6),
+    link varchar(255),
+    message varchar(255),
+    account_id bigint,
+    primary key (id),
+    foreign key (account_id) references account (id)
+) engine=InnoDB
