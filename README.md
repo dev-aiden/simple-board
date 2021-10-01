@@ -61,15 +61,15 @@ Project Link: [https://github.com/dev-aiden/simple-board](https://github.com/dev
 
 This project is licensed under the MIT License - see the LICENSE file for details
 
-[contributors-shield]: https://img.shields.io/github/contributors/dev-aiden/simple-board.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/dev-aiden/simple-board?style=for-the-badge
 [contributors-url]: https://github.com/dev-aiden/simple-board/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/dev-aiden/simple-board.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/dev-aiden/simple-board?style=for-the-badge
 [forks-url]: https://github.com/dev-aiden/simple-board/network/members
-[stars-shield]: https://img.shields.io/github/stars/dev-aiden/simple-board.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/dev-aiden/simple-board?style=for-the-badge
 [stars-url]: https://github.com/dev-aiden/simple-board/stargazers
-[issues-shield]: https://img.shields.io/github/issues/dev-aiden/simple-board.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/dev-aiden/simple-board?style=for-the-badge
 [issues-url]: https://github.com/dev-aiden/simple-board/issues
-[license-shield]: https://img.shields.io/github/license/dev-aiden/simple-board.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/dev-aiden/simple-board?style=for-the-badge
 [license-url]: https://github.com/dev-aiden/simple-board/blob/master/LICENSE
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/gwangyong-jeong/
