@@ -7,7 +7,7 @@
 
 # Simple Board
 
-A simple board made using spring boot
+A simple board made using spring boot.
 
 ![](screenshot.png)
 
@@ -34,15 +34,15 @@ A simple board made using spring boot
    ```
 4. Move to the project root directory and run
    ```sh
-   (Windows) gradlew.bat build
-   (Mac) ./gradlew build
+   Windows : gradlew.bat build
+   Mac : ./gradlew build
 
 ## Help
 
 Email authentication through the URI displayed in the log after signing up.
 
 ```
-send email : /check-email-token?token=29a37deb-12bf-476e-912e-7d1959163a12&email=asdf@email.com
+ex) send email : /check-email-token?token=29a37deb-12bf-476e-912e-7d1959163a12&email=asdf@email.com
 ```
 
 ## Authors
@@ -59,7 +59,17 @@ Project Link: [https://github.com/dev-aiden/simple-board](https://github.com/dev
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details
+This project is licensed under the MIT License - see the [LICENSE file](https://github.com/dev-aiden/simple-board/blob/master/LICENSE) for details.
+
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 [contributors-shield]: https://img.shields.io/github/contributors/dev-aiden/simple-board?style=for-the-badge
 [contributors-url]: https://github.com/dev-aiden/simple-board/graphs/contributors
