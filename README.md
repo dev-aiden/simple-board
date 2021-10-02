@@ -23,7 +23,7 @@ A simple board made using spring boot.
 * Gradle 7.1.1
 * Java 11
 * Spring boot 2.5.3
-* Spring Data Jpa
+* Spring Data JPA
 * Spring Security
 * Thymeleaf
 
